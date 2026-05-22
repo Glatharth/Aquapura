@@ -5,7 +5,9 @@
  * 
  * @copyright Copyright (c) 2025
  */
-#pragma once
+#ifndef GAMEWORLD_H
+#define GAMEWORLD_H
+
 #include "Player.h"
 #include "Npc.h"
 #include "enums.h"
@@ -65,6 +67,33 @@ void drawBackground( float time );
 void drawForeground( float time );
 
 /**
- * @brief Interpolates the progress between the specified start and end colors
+ * @brief Toggles HUD visibility.
  */
-Color interpolateColor( Color start, Color end, float progress );
+void toggleHUD(void);
+
+/**
+ * @brief Toggles invulnerability.
+ */
+void toggleOxygen(void);
+
+/**
+ * @brief Toggles random speed for NPCs.
+ */
+void toggleRandomSpeed(void);
+
+/**
+ * @brief Toggles fish visuals for the player.
+ */
+void toggleFishPlayer(void);
+
+/**
+ * @brief Toggles animal spawning.
+ */
+void toggleAnimals(void);
+
+/**
+ * @brief Sets the current NPC spawn interval.
+ */
+void setInterval(GameWorld *gw, float t);
+
+#endif

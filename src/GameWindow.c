@@ -17,6 +17,8 @@ int currentWindowScale = 2;
 int score = 0;
 int hiscore = 0;
 
+bool debug = false;
+
 GameWindow* createGameWindow(
     int width, 
     int height, 
@@ -182,6 +184,21 @@ void initGameWindow(GameWindow *gameWindow) {
 
                 //Center the window
                 SetWindowPosition((GetMonitorWidth(0) - GetScreenWidth()) / 2, (GetMonitorHeight(0) - GetScreenHeight()) / 2);
+            }
+
+            //Debug commands
+            if(debug) {
+                if(IsKeyPressed(KEY_F1)) toggleHUD();
+                if(IsKeyPressed(KEY_F2)) toggleOxygen();
+                if(IsKeyPressed(KEY_F3)) toggleRandomSpeed();
+                if(IsKeyPressed(KEY_F5)) {
+                    toggleFishPlayer();
+                    toggleAnimals();
+                }
+                if(IsKeyPressed(KEY_ZERO)) setInterval(gameWindow->gw, __FLT_MAX__);
+                if(IsKeyPressed(KEY_ONE)) setInterval(gameWindow->gw, INITIAL_SPAWN_INTERVAL);
+                if(IsKeyPressed(KEY_TWO)) setInterval(gameWindow->gw, 0.5);
+                if(IsKeyPressed(KEY_THREE)) setInterval(gameWindow->gw, 0.005);
             }
         }
 

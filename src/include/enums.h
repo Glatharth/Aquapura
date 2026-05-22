@@ -1,5 +1,5 @@
-#ifndef ENUMS_H  //Evita erros de redefinição de tipos, funções ou variáveis,  
-#define ENUMS_H  //o conteúdo do header só será incluído uma vez por arquivo fonte.
+#ifndef ENUMS_H
+#define ENUMS_H
 
 typedef enum State {
     GAME_RESTART,

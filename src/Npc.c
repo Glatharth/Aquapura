@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "raylib/raylib.h"
 
@@ -8,8 +9,12 @@
 #include "Score.h"
 #include "GlobalVariables.h"
 #include "ResourceManager.h"
+#include "utils.h"
 
 #define DEFAULT_REMOVAL_COUNTDOWN 0.5
+
+extern bool hudVisible;
+extern bool onlySpawnGarbage;
 
 Npc* createNpc(float speed){ //creates the npc with the starting values
     Npc *n = (Npc*)malloc(sizeof(Npc));
@@ -17,7 +22,7 @@ Npc* createNpc(float speed){ //creates the npc with the starting values
         return NULL;
     }
 
-    n->type = GetRandomValue(0, 1); // 0 = Animal 1 = Garbage
+    n->type = onlySpawnGarbage ? NPC_GARBAGE : GetRandomValue(0, 1); // 0 = Animal 1 = Garbage
     n->speed.x = speed;
     n->speed.y = 0;
 
@@ -133,7 +138,7 @@ void drawNpc(Npc* n){ //draws the npc
         */
     }
     else {
-        if(n->captureScore != 0) {
+        if(n->captureScore != 0 && hudVisible) {
             char points[12];
             Color color;
 
@@ -191,6 +196,8 @@ void drawBubble(Npc* n) { //draws the bubble
 }
 
 void updateNpc(Npc *n, float delta){ //update the npc position and state
+    static float waveTimer = 0;
+
     if(n->shouldBeRemoved) {
         n->removalCountdown -= delta;
     }
@@ -198,6 +205,8 @@ void updateNpc(Npc *n, float delta){ //update the npc position and state
         if(n->type == NPC_BUBBLE) {
             //Bubble 
             n->collision.y -= n->speed.y * delta;
+            n->collision.x += (0.5 * cos(waveTimer * 2));
+
             if(n->collision.y < globalWaterSurfaceHeight) {
                 n->shouldBeRemoved = true;
             }
@@ -205,6 +214,15 @@ void updateNpc(Npc *n, float delta){ //update the npc position and state
         else {
             //Animal or garbage
             n->collision.x -= n->speed.x * delta;
+
+            if(n->type == NPC_ANIMAL) {
+                n->collision.y += (0.15 * cos(waveTimer * 2));
+            }
+            else {
+                n->collision.y += (0.3 * cos(waveTimer * 0.5));
+            }
         }
     }
+
+    waveTimer += delta;
 }

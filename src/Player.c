@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 
 #include "raylib/raylib.h"
@@ -6,6 +7,11 @@
 #include "Player.h"
 #include "GlobalVariables.h"
 #include "ResourceManager.h"
+
+extern const unsigned char _binary_diver_png_start[];
+extern const unsigned char _binary_diver_png_end[];
+
+extern bool drawPlayerAsFish;
 
 Player * createPlayer(void){   // creates the player with the inicial settings
 
@@ -31,9 +37,10 @@ Player * createPlayer(void){   // creates the player with the inicial settings
 }
 
 void drawPlayer(Player *p, float timer){
-    Texture2D* texture = &rm.player;
-    int res = 64;
-    Rectangle source = {res * (int)(timer * 10), res * (p->collision.y == globalWaterSurfaceHeight), res, res};
+    Texture2D* texture = drawPlayerAsFish ? &rm.animalArray[1] : &rm.player;
+
+    int res = drawPlayerAsFish? 16 : 64;
+    Rectangle source = {res * (int)(timer * 10), res * (p->collision.y == globalWaterSurfaceHeight), drawPlayerAsFish ? -res : res, res};
 
     if(p->netTimer > 0) {
         texture = &rm.playerAttacking;
@@ -43,13 +50,13 @@ void drawPlayer(Player *p, float timer){
 
     Rectangle dest = {
         (int)(p->collision.x + p->collision.width / 2) * currentWindowScale,
-        (int)(p->collision.y + p->collision.height / 2) * currentWindowScale,
+        (int)(p->collision.y + p->collision.height / 2 + (drawPlayerAsFish ? 2 * cos(timer * 6) : 0)) * currentWindowScale,
         source.width * currentWindowScale,
         source.height * currentWindowScale
     };
 
     Vector2 offset = {res / 2 * currentWindowScale, res / 2 * currentWindowScale};
-    Color tint = {255, 255, 255, 255 * (1 - (int)(p->damageCooldown * 15) % 2)};
+    Color tint = {255, 255, 255, 255 * (1 - (drawPlayerAsFish ? 0 : (int)(p->damageCooldown * 15) % 2))};
 
     if(p->lastDir == LEFT) {
         source.width *= -1;

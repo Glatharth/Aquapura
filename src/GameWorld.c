@@ -14,13 +14,18 @@
 #include "GameWorld.h"
 #include "GlobalVariables.h"
 #include "ResourceManager.h"
+#include "utils.h"
 
 #include "Player.h"
 #include "Npc.h"
 #include "GameMechanics.h"
 #include "Score.h"
 
-
+bool hudVisible = true;
+bool pauseOxygen = false;
+bool randomSpeed = true;
+bool drawPlayerAsFish = false;
+bool onlySpawnGarbage = false;
 
 //#include "raylib/raymath.h"
 //#define RAYGUI_IMPLEMENTATION    // to use raygui, comment these three lines.
@@ -88,7 +93,8 @@ void updateGameWorld( GameWorld *gw, float delta ) { //update the gameworld with
         if(gw->activeNpc < MAX_NPC) {
             for (int i = 0; i < MAX_NPC; i++) {
                 if (gw->npc[i] == NULL) {
-                    gw->npc[i] = createNpc(gw->npcSpeed);
+                    int npcSpeed = randomSpeed ? fmin(gw->npcSpeed + GetRandomValue(0, 100), MAX_NPC_SPEED) : gw->npcSpeed;
+                    gw->npc[i] = createNpc(npcSpeed);
                     gw->activeNpc++;
                     break;                   
                 }
@@ -122,22 +128,24 @@ void updateGameWorld( GameWorld *gw, float delta ) { //update the gameworld with
     }
 
     //Oxygen control
-    if(gw->player->oxygen > 0){
-        if(gw->player->collision.y == globalWaterSurfaceHeight && gw->player->netTimer == 0) {
-            if(gw->player->oxygen < MAX_OXYGEN) {
-                gw->player->oxygen = fmin(gw->player->oxygen + 6 * delta, MAX_OXYGEN);
+    if(!pauseOxygen) {
+        if(gw->player->oxygen > 0){
+            if(gw->player->collision.y == globalWaterSurfaceHeight && gw->player->netTimer == 0) {
+                if(gw->player->oxygen < MAX_OXYGEN) {
+                    gw->player->oxygen = fmin(gw->player->oxygen + 6 * delta, MAX_OXYGEN);
+                }
+            }
+            else if(gw->player->collision.y + gw->player->collision.height / 2 < (globalPixelHeight * 2 / 3)) {
+                gw->player->oxygen -= 3 * delta;
+            }
+            else {
+                gw->player->oxygen -= 6 * delta;
             }
         }
-        else if(gw->player->collision.y + gw->player->collision.height / 2 < (globalPixelHeight * 2 / 3)) {
-            gw->player->oxygen -= 3 * delta;
+        else{
+            updateBestScore();
+            gw->gameState = GAME_OVER;
         }
-        else {
-            gw->player->oxygen -= 6 * delta;
-        }
-    }
-    else{
-        updateBestScore();
-        gw->gameState = GAME_OVER;
     }
 
     //Update all NPCs
@@ -202,8 +210,10 @@ void drawGameWorld( GameWorld *gw ) { //draws the gameworld with all its compone
     //Water surface height
     //DrawLine(0, globalWaterSurfaceHeight * currentWindowScale, GetScreenWidth(), globalWaterSurfaceHeight * currentWindowScale, BLUE);
 
-    drawOxygenBar(gw->player);
-    drawInGameScore();
+    if(hudVisible) {
+        drawOxygenBar(gw->player);
+        drawInGameScore();
+    }
 
     EndDrawing();
 
@@ -336,13 +346,43 @@ void drawForeground( float time ) {
 }
 
 /**
- * @brief Interpolates the progress between the specified start and end colors
+ * @brief Toggles HUD visibility.
  */
-Color interpolateColor( Color start, Color end, float progress ) {
-    int lerpR = start.r + (int)((end.r - start.r) * progress);
-    int lerpG = start.g + (int)((end.g - start.g) * progress);
-    int lerpB = start.b + (int)((end.b - start.b) * progress);
-    int lerpA = start.a + (int)((end.a - start.a) * progress);
+void toggleHUD(void) {
+    hudVisible = !hudVisible;
+}
 
-    return (Color){lerpR, lerpG, lerpB, lerpA};
+/**
+ * @brief Toggles invulnerability.
+ */
+void toggleOxygen(void) {
+    pauseOxygen = !pauseOxygen;
+}
+
+/**
+ * @brief Toggles random speed for NPCs.
+ */
+void toggleRandomSpeed(void) {
+    randomSpeed = !randomSpeed;
+}
+
+/**
+ * @brief Toggles fish visuals for the player.
+ */
+void toggleFishPlayer(void) {
+    drawPlayerAsFish = !drawPlayerAsFish;
+}
+
+/**
+ * @brief Toggles animal spawning.
+ */
+void toggleAnimals(void) {
+    onlySpawnGarbage = !onlySpawnGarbage;
+}
+
+/**
+ * @brief Sets the current NPC spawn interval.
+ */
+void setInterval(GameWorld *gw, float t) {
+    gw->spawnInterval = t;
 }

@@ -11,7 +11,7 @@
 # author: Prof. Dr. David Buzatto
 
 # Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
-TARGET_EXEC := $(lastword $(notdir $(shell pwd)))
+TARGET_EXEC := aquapura
 
 BUILD_DIR := ./build
 SRC_DIRS := ./src
@@ -24,6 +24,12 @@ cleanAndCompile: clean compile
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+
+# Find all the RC files for Windows
+ifeq ($(PLATFORM), Windows)
+RC_SRCS := $(shell find $(SRC_DIRS) -name '*.rc')
+SRCS := $(SRCS) $(RC_SRCS)
+endif
 
 # Prepends BUILD_DIR and appends .o to every src file
 # As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
@@ -67,6 +73,12 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+# Build step for RC files (Windows only)
+ifeq ($(PLATFORM), Windows)
+$(BUILD_DIR)/%.rc.o: %.rc
+	mkdir -p $(dir $@)
+	windres $< -O coff -o $@ --target=pe-x86-64 --codepage=65001
+endif
 
 .PHONY: clean
 clean:

@@ -7,6 +7,8 @@
 #include "GameMechanics.h"
 #include "GlobalVariables.h"
 
+extern bool pauseOxygen;
+
 void checkNpcCollision(Player* p, Npc* n) {
     //Only check for collision if the player is not intangible
     if(p->damageCooldown == 0) {
@@ -52,7 +54,7 @@ void checkNpcCapture(GameWorld *gw, Player* p, Npc* n) {
 
 void awardCollisionBonus(Player* p, Npc* n) {
     //Awards the player with the NPC's oxygen bonus. May be positive or negative.
-    p->oxygen = fmin(p->oxygen + n->collisionOxygen, MAX_OXYGEN);
+    if(!pauseOxygen) p->oxygen = fmin(p->oxygen + n->collisionOxygen, MAX_OXYGEN);
 
     //If the oxygen gain is negative, damage the player
     if(n->collisionOxygen < 0) {

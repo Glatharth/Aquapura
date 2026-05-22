@@ -12,7 +12,7 @@
 #
 # Author: Prof. Dr. David Buzatto
 
-CompiledFile=${PWD##*/}
+CompiledFile="aquapura"
 CompiledFile=${CompiledFile:-/}
 
 clean_project() {
@@ -45,7 +45,7 @@ run_project() {
     if [ -e $CompiledFile ]; then
         ./$CompiledFile
     else
-        echo "$CompiledFile does not exists!"
+        echo "$CompiledFile does not exist!"
     fi
 }
 

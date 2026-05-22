@@ -18,8 +18,7 @@ param(
     [switch]$run
 );
 
-$CurrentFolderName = Split-Path -Path (Get-Location) -Leaf
-$CompiledFile = "$CurrentFolderName.exe"
+$CompiledFile = "build\aquapura.exe"
 
 $all = $false
 if ( -not( $clean -or $cleanAndCompile -or $compile -or $compileAndRun -or $run ) ) {
@@ -37,7 +36,13 @@ if ( $clean -or $cleanAndCompile -or $all ) {
 # compile
 if ( $compile -or $cleanAndCompile -or $compileAndRun -or $all ) {
     Write-Host "Compiling..."
-    gcc src/*.c -o $CompiledFile `
+
+    windres "src\aquapura.rc" -o "build\obj\aquapura.rc.o" --target=pe-x86-64 --codepage=65001
+
+    $SourceFiles = Get-ChildItem -Path "src" -Filter "*.c" -Recurse | ForEach-Object { $_.FullName }
+    $ObjFiles = Get-ChildItem -Path "build\obj" -Filter "*.o" -Recurse | ForEach-Object { $_.FullName }
+
+    gcc $SourceFiles $ObjFiles -o $CompiledFile `
         -O1 `
         -Wall `
         -Wextra `
@@ -50,7 +55,8 @@ if ( $compile -or $cleanAndCompile -or $compileAndRun -or $all ) {
         -lraylib `
         -lopengl32 `
         -lgdi32 `
-        -lwinmm
+        -lwinmm `
+        -mwindows
 }
 
 # run
@@ -59,6 +65,6 @@ if ( $run -or $compileAndRun -or $all ) {
     if ( Test-Path $CompiledFile ) {
         & .\$CompiledFile
     } else {
-        Write-Host "$CompiledFile does not exists!"
+        Write-Host "$CompiledFile does not exist!"
     }
 }

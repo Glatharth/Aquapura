@@ -5,7 +5,8 @@
  * 
  * @copyright Copyright (c) 2025
  */
-#pragma once
+#ifndef GAMEWINDOW_H
+#define GAMEWINDOW_H
 
 #include <stdbool.h>
 
@@ -63,3 +64,5 @@ void updateGameState(GameWorld *gw);
  * @brief Destroys a GameWindow object and its dependecies.
  */
 void destroyGameWindow( GameWindow *gameWindow );
+
+#endif

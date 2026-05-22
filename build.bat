@@ -17,8 +17,7 @@ SHIFT
 
 SET currentStep=-1
 
-FOR %%I in (.) DO SET CurrentFolderName=%%~nxI
-SET CompiledFile=%CurrentFolderName%.exe
+SET CompiledFile=build\aquapura.exe
 
 IF "%switch%"=="" GOTO allSteps
 IF "%switch%"=="-clean" GOTO cleanSteps
@@ -72,9 +71,25 @@ GOTO nextStep
 
 :compile
 ECHO Compiling...
-gcc src/main.c src/GameMechanics.c src/GameWindow.c src/GameWorld.c src/Npc.c src/Player.c src/Menu.c src/ResourceManager.c src/utils.c src/Score.c -o %CompiledFile% -O1 -Wall -Wextra -Wno-unused-parameter -pedantic-errors -std=c99 -Wno-missing-braces -I src/include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
-GOTO nextStep
+windres src/aquapura.rc -o build/obj/aquapura.rc.o --target=pe-x86-64 --codepage=65001
 
+@ECHO OFF
+SETLOCAL ENABLEDELAYEDEXPANSION
+
+SET SourceFiles=
+FOR /R "src\" %%F IN (*.c) DO (
+    SET SourceFiles=!SourceFiles! %%F
+)
+
+SET ObjFiles=
+FOR /R "build\obj\" %%F IN (*.o) DO (
+    SET ObjFiles=!ObjFiles! %%F
+)
+
+gcc !SourceFiles! !ObjFiles! -o %CompiledFile% -O2 -Wall -Wextra -Wno-unused-parameter -pedantic-errors -std=c99 -Wno-missing-braces -I src/include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm -mwindows
+
+ENDLOCAL
+GOTO nextStep
 
 :run
 ECHO Running...

@@ -5,6 +5,8 @@
 #include "GameWorld.h"
 #include "Score.h"
 
+#include <raylib/raylib.h>
+
 //desenho e animacao dos botoes
 static void DrawButtonAnimation(Rectangle dimensions, Texture2D texture, Vector2 mouse, float scale) {
     Rectangle source = {0, 0, (float)texture.width, (float)texture.height};

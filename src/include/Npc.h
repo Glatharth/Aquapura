@@ -1,6 +1,8 @@
-#pragma once
-#include "raylib/raylib.h"
+#ifndef NPC_H
+#define NPC_H
+
 #include <stdbool.h>
+#include "raylib/raylib.h"
 #include "enums.h"
 
 typedef struct Npc {
@@ -25,3 +27,5 @@ void drawNpc(Npc* n);
 void drawBubble(Npc* n);
 
 void updateNpc(Npc *n, float delta);
+
+#endif

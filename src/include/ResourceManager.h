@@ -5,7 +5,8 @@
  * 
  * @copyright Copyright (c) 2025
  */
-#pragma once
+#ifndef RESOURCEMANAGER_H
+#define RESOURCEMANAGER_H
 
 #include "raylib/raylib.h"
 
@@ -78,3 +79,5 @@ void loadResourcesResourceManager( void );
  * @brief Unload global game resources.
  */
 void unloadResourcesResourceManager( void );
+
+#endif

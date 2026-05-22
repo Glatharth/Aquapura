@@ -8,6 +8,7 @@
 #include "Score.h"
 #include "GlobalVariables.h"
 #include "enums.h"
+#include "utils.h"
 
 bool isNewBest = true;
 
@@ -68,18 +69,4 @@ void updateBestScore(void) {
     else {
         isNewBest = false;
     }
-}
-
-void drawOutlinedText(const char *text, int posX, int posY, int fontSize, Color color, Color outlineColor) {
-    int offset = fontSize / 10;
-
-    DrawText(text, posX - offset, posY - offset, fontSize, outlineColor);
-    DrawText(text, posX, posY - offset, fontSize, outlineColor);
-    DrawText(text, posX + offset, posY - offset, fontSize, outlineColor);
-    DrawText(text, posX - offset, posY, fontSize, outlineColor);
-    DrawText(text, posX + offset, posY, fontSize, outlineColor);
-    DrawText(text, posX - offset, posY + offset, fontSize, outlineColor);
-    DrawText(text, posX, posY + offset, fontSize, outlineColor);
-    DrawText(text, posX + offset, posY + offset, fontSize, outlineColor);
-    DrawText(text, posX, posY, fontSize, color);
 }

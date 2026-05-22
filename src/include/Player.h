@@ -1,6 +1,7 @@
-#pragma once
-#include "raylib/raylib.h"
+#ifndef PLAYER_H
+#define PLAYER_H
 
+#include "raylib/raylib.h"
 #include "enums.h"
 
 #define MAX_OXYGEN 100
@@ -23,3 +24,5 @@ void updatePlayer(Player *p, float delta);
 void drawPlayer(Player *p, float timer);
 
 void drawOxygenBar(Player *p);
+
+#endif
