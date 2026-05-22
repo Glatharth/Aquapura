@@ -76,7 +76,7 @@ void loadResourcesResourceManager(void) {
 
     //Game BGs
     LOAD_TEXTURE_FROM_IMAGE(sunBg, sprites_background_sunbg);
-    LOAD_TEXTURE_FROM_IMAGE(moonBg, sprites_background_sunbg);
+    LOAD_TEXTURE_FROM_IMAGE(moonBg, sprites_background_moonbg);
     LOAD_TEXTURE_FROM_IMAGE(cloudHighlightBg, sprites_background_cloudhighlightbg);
     LOAD_TEXTURE_FROM_IMAGE(cloudShadowBg, sprites_background_cloudshadowbg);
     LOAD_TEXTURE_FROM_IMAGE(cityscapeBg, sprites_background_cityscapebg);
