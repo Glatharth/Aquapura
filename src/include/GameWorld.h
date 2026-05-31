@@ -8,9 +8,9 @@
 #ifndef GAMEWORLD_H
 #define GAMEWORLD_H
 
+#include <stdbool.h>
 #include "Player.h"
 #include "Npc.h"
-#include "enums.h"
 
 //Definitions
 #define ENEMY_ESCAPE_LIMIT 5
@@ -26,11 +26,11 @@ typedef struct GameWorld {
     Player *player;
     Npc *npc[MAX_NPC];
     int activeNpc;
-    float timer;
+    float gameTime;
+    float previousTime;
     float spawnTimer;
     float spawnInterval;
     float bubbleTimer;
-    State gameState;
     int escapedEnemies;
     int caughtEnemies;
     int npcSpeed;
@@ -39,32 +39,32 @@ typedef struct GameWorld {
 /**
  * @brief Creates a dinamically allocated GameWorld struct instance.
  */
-GameWorld* createGameWorld( State initialState );
+GameWorld* createGameWorld(void);
 
 /**
- * @brief Destroys a GameWindow object and its dependecies.
+ * @brief Destroys a GameWorld object and its dependecies.
  */
-void destroyGameWorld( GameWorld *gw );
+void destroyGameWorld(GameWorld **gw);
 
 /**
  * @brief Reads user input and updates the state of the game.
  */
-void updateGameWorld( GameWorld *gw, float delta );
+void updateGameWorld(void *gameWorld, float delta, void *additionalData);
 
 /**
  * @brief Draws the state of the game.
  */
-void drawGameWorld( GameWorld *gw );
+void drawGameWorld(void *gameWorld, float alpha, void *additionalData);
 
 /**
  * @brief Draws the environment behind all entities.
  */
-void drawBackground( float time );
+void drawBackground(float animTime);
 
 /**
  * @brief Draws the environment in front of all entities.
  */
-void drawForeground( float time );
+void drawForeground(float animTime);
 
 /**
  * @brief Toggles HUD visibility.

@@ -1,16 +1,16 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <math.h>
 
 #include "raylib/raylib.h"
 
 #include "Score.h"
 #include "GlobalVariables.h"
-#include "enums.h"
-#include "utils.h"
+#include "Enums.h"
+#include "Utils.h"
 
-bool isNewBest = true;
+int score = 0;
+int hiscore = 0;
+
+bool isNewBest = false;
 
 void drawInGameScore(void) {
     char scoreText[11];

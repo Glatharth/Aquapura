@@ -5,18 +5,13 @@
  * 
  * @copyright Copyright (c) 2025
  */
-#include <stdio.h>
-#include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "raylib/raylib.h"
 
 #include "ResourceManager.h"
 #include "resources.h"
-
-#define LOAD_IMAGE_FROM_MEMORY(dest, src) { \
-    rm.dest = LoadImageFromMemory(".png", _binary_resources_images_##src##_png_start, (size_t)(_binary_resources_images_##src##_png_end - _binary_resources_images_##src##_png_start)); \
-}
 
 #define LOAD_MUSIC_STREAM_FROM_MEMORY(dest, src) { \
     rm.dest = LoadMusicStreamFromMemory(".mp3", _binary_resources_sounds_##src##_mp3_start, (size_t)(_binary_resources_sounds_##src##_mp3_end - _binary_resources_sounds_##src##_mp3_start)); \
@@ -31,9 +26,6 @@
 ResourceManager rm = {0};
 
 void loadResourcesResourceManager(void) {
-    //Misc. Images
-    LOAD_IMAGE_FROM_MEMORY(icon, icon_16x);
-
     //Player
     LOAD_TEXTURE_FROM_IMAGE(player, sprites_diver);
     LOAD_TEXTURE_FROM_IMAGE(playerAttacking, sprites_diver_attacking);
@@ -110,8 +102,6 @@ void loadResourcesResourceManager(void) {
 }
 
 void unloadResourcesResourceManager(void) {
-    UnloadImage(rm.icon);
-
     //Player
     UnloadTexture(rm.player);
     UnloadTexture(rm.playerAttacking);

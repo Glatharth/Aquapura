@@ -2,14 +2,11 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "raylib/raylib.h"
-
 #include "Player.h"
 #include "GlobalVariables.h"
 #include "ResourceManager.h"
-
-extern const unsigned char _binary_diver_png_start[];
-extern const unsigned char _binary_diver_png_end[];
+#include "Input.h"
+#include "Utils.h"
 
 extern bool drawPlayerAsFish;
 
@@ -24,6 +21,10 @@ Player * createPlayer(void){   // creates the player with the inicial settings
     p->collision.height = 20;
     p->collision.x = (globalPixelWidth - p->collision.width) / 2.0f ;
     p->collision.y = globalPixelHeight * 0.6f;
+    p->realPos.x = p->collision.x;
+    p->realPos.y = p->collision.y;
+    p->prevPos.x = p->collision.x;
+    p->prevPos.y = p->collision.y;
     p->oxygen = MAX_OXYGEN;
     p->damageCooldown = 0;
     p->speed.x = 120;
@@ -31,16 +32,24 @@ Player * createPlayer(void){   // creates the player with the inicial settings
     p->netTimer = 0;
     p->netOffset = 38;
     p->netSize = (Vector2){24, 24};
-    p->lastDir = RIGHT;
+    p->lastDir = DIR_RIGHT;
+
+    p->key = (PlayerKeybind){
+        .moveUp = KEY_W,
+        .moveLeft = KEY_A,
+        .moveDown = KEY_S,
+        .moveRight = KEY_D,
+        .capture = KEY_SPACE,
+    };
 
     return p;
 }
 
-void drawPlayer(Player *p, float timer){
+void drawPlayer(Player *p, float alpha, float animTime){
     Texture2D* texture = drawPlayerAsFish ? &rm.animalArray[1] : &rm.player;
 
     int res = drawPlayerAsFish? 16 : 64;
-    Rectangle source = {res * (int)(timer * 10), res * (p->collision.y == globalWaterSurfaceHeight), drawPlayerAsFish ? -res : res, res};
+    Rectangle source = {res * (int)(animTime * 10), res * (p->collision.y == globalWaterSurfaceHeight), drawPlayerAsFish ? -res : res, res};
 
     if(p->netTimer > 0) {
         texture = &rm.playerAttacking;
@@ -49,8 +58,8 @@ void drawPlayer(Player *p, float timer){
     }
 
     Rectangle dest = {
-        (int)(p->collision.x + p->collision.width / 2) * currentWindowScale,
-        (int)(p->collision.y + p->collision.height / 2 + (drawPlayerAsFish ? 2 * cos(timer * 6) : 0)) * currentWindowScale,
+        roundf(interpolateFloat(p->prevPos.x, p->collision.x, alpha) + p->collision.width / 2) * currentWindowScale,
+        roundf(interpolateFloat(p->prevPos.y, p->collision.y, alpha) + p->collision.height / 2 + (drawPlayerAsFish ? 2 * cos(animTime * 6) : 0)) * currentWindowScale,
         source.width * currentWindowScale,
         source.height * currentWindowScale
     };
@@ -58,7 +67,7 @@ void drawPlayer(Player *p, float timer){
     Vector2 offset = {res / 2 * currentWindowScale, res / 2 * currentWindowScale};
     Color tint = {255, 255, 255, 255 * (1 - (drawPlayerAsFish ? 0 : (int)(p->damageCooldown * 15) % 2))};
 
-    if(p->lastDir == LEFT) {
+    if(p->lastDir == DIR_LEFT) {
         source.width *= -1;
     }
 
@@ -112,34 +121,40 @@ void updatePlayer(Player *p, float delta){
     }
 
     //Only use net if the timer is set to 0
-    if(p->netTimer == 0 && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_E))){
-        p->netTimer = 0.4;
+    if(consumeInputEvent(INPUT_P1_CAPTURE)) {
+        if(p->netTimer == 0) p->netTimer = 0.4;
     }
 
+    p->prevPos.x = p->collision.x;
+    p->prevPos.y = p->collision.y;
+
     //Player movement
-    if(IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
-        p->collision.x += p->speed.x * delta;
-        p->lastDir = RIGHT;
+    if(consumeInputEvent(INPUT_P1_MOVE_RIGHT)){
+        p->realPos.x += p->speed.x * delta;
+        p->lastDir = DIR_RIGHT;
     }
-    if(IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)){
-        p->collision.x -= p->speed.x * delta;
-        p->lastDir = LEFT;
+    if(consumeInputEvent(INPUT_P1_MOVE_LEFT)){
+        p->realPos.x -= p->speed.x * delta;
+        p->lastDir = DIR_LEFT;
     }
-    if(IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)){
-        p->collision.y -= p->speed.y * delta;
+    if(consumeInputEvent(INPUT_P1_MOVE_UP)){
+        p->realPos.y -= p->speed.y * delta;
     }
-    if(IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)){
-        p->collision.y += p->speed.y * delta;
+    if(consumeInputEvent(INPUT_P1_MOVE_DOWN)){
+        p->realPos.y += p->speed.y * delta;
     }
 
     //Ensures the player's oxygen levels don't go past the limit
     p->oxygen = fmin(p->oxygen, MAX_OXYGEN);
 
     //Border collision
-    p->collision.x = fmin(fmax(0, p->collision.x), globalPixelWidth - p->collision.width);
-    p->collision.y = fmin(fmax(globalWaterSurfaceHeight, p->collision.y), globalFloorHeight - p->collision.height);
-}
+    p->realPos.x = fmin(fmax(0, p->realPos.x), globalPixelWidth - p->collision.width);
+    p->realPos.y = fmin(fmax(globalWaterSurfaceHeight, p->realPos.y), globalFloorHeight - p->collision.height);
 
+    //Aligns the collision to the pixel grid without losing position data
+    p->collision.x = roundf(p->realPos.x);
+    p->collision.y = roundf(p->realPos.y);
+}
 
 void drawOxygenBar(Player *p){
     int tankX = 8;
@@ -188,4 +203,3 @@ void drawOxygenBar(Player *p){
 
     DrawTexturePro(rm.oxyTank, source, dest, (Vector2){0, 0}, 0, WHITE);
 }
-    

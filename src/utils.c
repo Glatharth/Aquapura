@@ -1,4 +1,5 @@
-#include "utils.h"
+#include "raylib/raylib.h"
+#include "Utils.h"
 
 /**
  * @brief Clamps a number between the specified values
@@ -10,9 +11,16 @@ int clamp(int value, int min, int max) {
 }
 
 /**
+ * @brief Interpolates the progress between the specified start and end floats
+ */
+float interpolateFloat(float start, float end, float progress) {
+    return start + (end - start) * progress;
+}
+
+/**
  * @brief Interpolates the progress between the specified start and end colors
  */
-Color interpolateColor(Color start, Color end, float progress) {
+struct Color interpolateColor(struct Color start, struct Color end, float progress) {
     int lerpR = start.r + (int)((end.r - start.r) * progress);
     int lerpG = start.g + (int)((end.g - start.g) * progress);
     int lerpB = start.b + (int)((end.b - start.b) * progress);
@@ -24,7 +32,7 @@ Color interpolateColor(Color start, Color end, float progress) {
 /**
  * @brief Draws text with an outline based on position and font size
  */
-void drawOutlinedText(const char *text, int posX, int posY, int fontSize, Color color, Color outlineColor) {
+void drawOutlinedText(const char *text, int posX, int posY, int fontSize, struct Color color, struct Color outlineColor) {
     int offset = fontSize / 10;
 
     DrawText(text, posX - offset, posY - offset, fontSize, outlineColor);

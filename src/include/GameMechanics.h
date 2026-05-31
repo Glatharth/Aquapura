@@ -1,16 +1,16 @@
 #ifndef GAMEMECHANICS_H
 #define GAMEMECHANICS_H
 
-#include "GameWorld.h"
-#include "Player.h"
-#include "Npc.h"
+struct GameWorld;
+struct Player;
+struct Npc;
 
-void checkNpcCollision(Player* p, Npc* n);
+void checkNpcCollision(struct Player *p, struct Npc *n);
 
-void checkNpcCapture(GameWorld *gw, Player* p, Npc* n);
+void checkNpcCapture(struct GameWorld *gw, struct Player *p, struct Npc *n);
 
-void awardCollisionBonus(Player* p, Npc* n);
+void awardCollisionBonus(struct Player *p, struct Npc *n);
 
-void awardCaptureBonus(Player* p, Npc* n);
+void awardCaptureBonus(struct Player *p, struct Npc *n);
 
 #endif

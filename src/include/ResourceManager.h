@@ -11,9 +11,6 @@
 #include "raylib/raylib.h"
 
 typedef struct ResourceManager {
-    //Misc. Images
-    Image icon;
-
     //Player
     Texture2D player;
     Texture2D playerAttacking;

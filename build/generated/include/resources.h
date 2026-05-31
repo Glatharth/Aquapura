@@ -1,0 +1,195 @@
+//Automatically generated with build-resources.bat 
+
+#ifndef RESOURCES_H
+#define RESOURCES_H
+
+extern const unsigned char _binary_resources_images_icon_16x_png_start[];
+extern const unsigned char _binary_resources_images_icon_16x_png_end[];
+
+extern const unsigned char _binary_resources_images_icon_256x_png_start[];
+extern const unsigned char _binary_resources_images_icon_256x_png_end[];
+
+extern const unsigned char _binary_resources_images_icon_32x_png_start[];
+extern const unsigned char _binary_resources_images_icon_32x_png_end[];
+
+extern const unsigned char _binary_resources_images_icon_48x_png_start[];
+extern const unsigned char _binary_resources_images_icon_48x_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_diver_png_start[];
+extern const unsigned char _binary_resources_images_sprites_diver_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_diver_attacking_png_start[];
+extern const unsigned char _binary_resources_images_sprites_diver_attacking_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_tank_png_start[];
+extern const unsigned char _binary_resources_images_sprites_tank_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_bgpalette_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_bgpalette_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_bubblefg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_bubblefg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_cityoverlaybg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_cityoverlaybg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_cityscapebg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_cityscapebg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_cloudhighlightbg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_cloudhighlightbg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_cloudshadowbg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_cloudshadowbg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_floorbg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_floorbg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_floorfg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_floorfg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_foamfg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_foamfg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_moonbg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_moonbg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_sunbg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_sunbg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_background_waterbg_png_start[];
+extern const unsigned char _binary_resources_images_sprites_background_waterbg_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_0_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_0_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_1_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_1_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_10_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_10_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_11_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_11_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_12_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_12_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_13_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_13_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_14_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_14_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_15_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_15_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_16_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_16_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_2_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_2_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_3_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_3_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_4_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_4_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_5_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_5_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_6_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_6_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_7_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_7_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_8_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_8_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_9_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_animal_animal_9_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_bubble_bubble_breathe_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_bubble_bubble_breathe_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_bubble_bubble_idle_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_bubble_bubble_idle_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_bubble_bubble_pop_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_bubble_bubble_pop_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_0_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_0_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_1_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_1_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_10_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_10_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_2_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_2_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_3_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_3_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_4_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_4_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_5_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_5_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_6_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_6_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_7_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_7_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_8_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_8_png_end[];
+
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_9_png_start[];
+extern const unsigned char _binary_resources_images_sprites_npc_enemy_trash_9_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_controles_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_controles_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_creditos_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_creditos_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_denovo_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_denovo_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_jogar_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_jogar_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_menu_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_menu_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_voltar_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_voltar_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_bt_voltar2_png_start[];
+extern const unsigned char _binary_resources_images_ui_bt_voltar2_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_menu_bg_png_start[];
+extern const unsigned char _binary_resources_images_ui_menu_bg_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_menu_crdts_png_start[];
+extern const unsigned char _binary_resources_images_ui_menu_crdts_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_menu_ctrls_png_start[];
+extern const unsigned char _binary_resources_images_ui_menu_ctrls_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_menu_gmov_png_start[];
+extern const unsigned char _binary_resources_images_ui_menu_gmov_png_end[];
+
+extern const unsigned char _binary_resources_images_ui_menu_pause_png_start[];
+extern const unsigned char _binary_resources_images_ui_menu_pause_png_end[];
+
+extern const unsigned char _binary_resources_sounds_music_hydrodynamics_mp3_start[];
+extern const unsigned char _binary_resources_sounds_music_hydrodynamics_mp3_end[];
+
+#endif 

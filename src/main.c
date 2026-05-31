@@ -7,12 +7,9 @@
  * @copyright Copyright (c) 2025
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
 #include "GameWindow.h"
-
-GameWorld *gw;
 
 int main(void) {
 
@@ -29,7 +26,7 @@ int main(void) {
         false,                  // invisible background
         false,                  // always run
         true,                   // load resources
-        true                   // init audio
+        true                    // init audio
     );
 
     
