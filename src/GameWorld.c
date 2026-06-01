@@ -17,6 +17,7 @@
 #include "ResourceManager.h"
 #include "Utils.h"
 #include "Enums.h"
+#include "Colors.h"
 
 #include "Player.h"
 #include "Npc.h"
@@ -235,42 +236,42 @@ void drawBackground(float animTime) {
     switch((int)(animTime / dayTimeInterval) % 4) {
         case 1: //Sunset
             celestial = &rm.sunBg;
-            skyColor = interpolateColor((Color){255, 108, 36, 255}, (Color){29, 43, 83, 255}, colorLerpProgress);
-            cloudHighlightColor = interpolateColor((Color){255, 241, 232, 255}, (Color){194, 195, 199, 255}, colorLerpProgress);
-            cloudShadowColor = interpolateColor((Color){255, 204, 170, 255}, (Color){131, 118, 156, 255}, colorLerpProgress);
-            cityscapeColor = interpolateColor((Color){73, 51, 59, 255}, (Color){0, 0, 0, 255}, colorLerpProgress);
-            cityOverlayColor = interpolateColor((Color){73, 51, 59, 255}, (Color){243, 239, 125, 255}, colorLerpProgress);
-            waterColor = interpolateColor((Color){18, 83, 89, 255}, (Color){17, 29, 53, 255}, colorLerpProgress);
+            skyColor = interpolateColor(PICO_8_DARK_ORANGE, PICO_8_DARK_BLUE, colorLerpProgress);
+            cloudHighlightColor = interpolateColor(PICO_8_WHITE, PICO_8_LIGHT_GREY, colorLerpProgress);
+            cloudShadowColor = interpolateColor(PICO_8_LIGHT_PEACH, PICO_8_LAVENDER, colorLerpProgress);
+            cityscapeColor = interpolateColor(PICO_8_DARKER_GREY, PICO_8_BLACK, colorLerpProgress);
+            cityOverlayColor = interpolateColor(PICO_8_DARKER_GREY, PICO_8_LIGHT_YELLOW, colorLerpProgress);
+            waterColor = interpolateColor(PICO_8_BLUE_GREEN, PICO_8_DARKER_BLUE, colorLerpProgress);
             break;
 
         case 2: //Night
             celestial = &rm.moonBg;
-            skyColor = interpolateColor((Color){29, 43, 83, 255}, (Color){117, 70, 101, 255}, colorLerpProgress);
-            cloudHighlightColor = interpolateColor((Color){194, 195, 199, 255}, (Color){255, 157, 129, 255}, colorLerpProgress);
-            cloudShadowColor = interpolateColor((Color){131, 118, 156, 255}, (Color){255, 110, 89, 255}, colorLerpProgress);
-            cityscapeColor = interpolateColor((Color){0, 0, 0, 255}, (Color){74, 51, 59, 255}, colorLerpProgress);
-            cityOverlayColor = (Color){243, 239, 125, 255};
-            waterColor = interpolateColor((Color){17, 29, 53, 255}, (Color){18, 83, 89, 255}, colorLerpProgress);
+            skyColor = interpolateColor(PICO_8_DARK_BLUE, PICO_8_MAUVE, colorLerpProgress);
+            cloudHighlightColor = interpolateColor(PICO_8_LIGHT_GREY, PICO_8_PEACH, colorLerpProgress);
+            cloudShadowColor = interpolateColor(PICO_8_LAVENDER, PICO_8_DARK_PEACH, colorLerpProgress);
+            cityscapeColor = interpolateColor(PICO_8_BLACK, PICO_8_DARKER_GREY, colorLerpProgress);
+            cityOverlayColor = PICO_8_LIGHT_YELLOW;
+            waterColor = interpolateColor(PICO_8_DARKER_BLUE, PICO_8_BLUE_GREEN, colorLerpProgress);
             break;
 
         case 3: //Sunrise
             celestial = &rm.moonBg;
-            skyColor = interpolateColor((Color){117, 70, 101, 255}, (Color){41, 173, 255, 255}, colorLerpProgress);
-            cloudHighlightColor = interpolateColor((Color){255, 157, 129, 255}, (Color){255, 241, 232, 255}, colorLerpProgress);
-            cloudShadowColor = interpolateColor((Color){255, 110, 89, 255}, (Color){194, 195, 199, 255}, colorLerpProgress);
-            cityscapeColor = interpolateColor((Color){74, 51, 59, 255}, (Color){6, 90, 181, 255}, colorLerpProgress);
-            cityOverlayColor = interpolateColor((Color){243, 239, 125, 255}, (Color){6, 90, 181, 255}, colorLerpProgress);
-            waterColor = (Color){18, 83, 89, 255};
+            skyColor = interpolateColor(PICO_8_MAUVE, PICO_8_BLUE, colorLerpProgress);
+            cloudHighlightColor = interpolateColor(PICO_8_PEACH, PICO_8_WHITE, colorLerpProgress);
+            cloudShadowColor = interpolateColor(PICO_8_DARK_PEACH, PICO_8_LIGHT_GREY, colorLerpProgress);
+            cityscapeColor = interpolateColor(PICO_8_DARKER_GREY, PICO_8_TRUE_BLUE, colorLerpProgress);
+            cityOverlayColor = interpolateColor(PICO_8_LIGHT_YELLOW, PICO_8_TRUE_BLUE, colorLerpProgress);
+            waterColor = PICO_8_BLUE_GREEN;
             break;
 
         default:
             celestial = &rm.sunBg;
-            skyColor = interpolateColor((Color){41, 173, 255, 255}, (Color){255, 108, 36, 255}, colorLerpProgress);
-            cloudHighlightColor = (Color){255, 241, 232, 255};
-            cloudShadowColor = interpolateColor((Color){194, 195, 199, 255}, (Color){255, 204, 170, 255}, colorLerpProgress);
-            cityscapeColor = interpolateColor((Color){6, 90, 181, 255}, (Color){73, 51, 59, 255}, colorLerpProgress);
-            cityOverlayColor = interpolateColor((Color){6, 90, 181, 255}, (Color){73, 51, 59, 255}, colorLerpProgress);
-            waterColor = (Color){18, 83, 89, 255};
+            skyColor = interpolateColor(PICO_8_BLUE, PICO_8_DARK_ORANGE, colorLerpProgress);
+            cloudHighlightColor = PICO_8_WHITE;
+            cloudShadowColor = interpolateColor(PICO_8_LIGHT_GREY, PICO_8_LIGHT_PEACH, colorLerpProgress);
+            cityscapeColor = interpolateColor(PICO_8_TRUE_BLUE, PICO_8_DARKER_GREY, colorLerpProgress);
+            cityOverlayColor = interpolateColor(PICO_8_TRUE_BLUE, PICO_8_DARKER_GREY, colorLerpProgress);
+            waterColor = PICO_8_BLUE_GREEN;
     }
 
     Rectangle source;

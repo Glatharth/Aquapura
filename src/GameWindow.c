@@ -235,6 +235,13 @@ void setGameState(void *gameWindow, State newState) {
             gw->music = &rm.bg_tune;
             SetMusicVolume(*gw->music, 0.5f); //Normal volume during gameplay
             SetMusicPitch(*gw->music, 1.0f);
+
+            resetFocusedButton(gw->mainMenu);
+            resetFocusedButton(gw->controlsMenu);
+            resetFocusedButton(gw->creditsMenu);
+            resetFocusedButton(gw->gameOverMenu);
+            resetFocusedButton(gw->pauseMenu);
+
             break;
 
         case GAME_OVER:

@@ -17,7 +17,8 @@ Menu *createMainMenu(void) {
     m->buttons[0] = createButton(&rm.controlsButton, btnControles, setGameState, GAME_CONTROLS);
     m->buttons[1] = createButton(&rm.playButton, btnJogar, setGameState, GAME_RUNNING);
     m->buttons[2] = createButton(&rm.creditsButton, btnCreditos, setGameState, GAME_CREDITS);
-    m->focusedButton = 1;
+    m->mainButton = 1;
+    m->focusedButton = m->mainButton;
 
     return m;
 }

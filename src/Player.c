@@ -7,6 +7,7 @@
 #include "ResourceManager.h"
 #include "Input.h"
 #include "Utils.h"
+#include "Colors.h"
 
 extern bool drawPlayerAsFish;
 
@@ -164,26 +165,34 @@ void drawOxygenBar(Player *p){
     int barX = tankX + 6;
     int barY = tankY + 6;
 
-    // Change color of the bar based on the oxygen levels
+    //Change color of the bar based on the oxygen level
     Color startColor;
     Color endColor;
     float lerpAmount = 0.0f;
 
-    //Blending from green to yellow
-    if(p->oxygen > 50) {
-        startColor = YELLOW;
-        endColor = GREEN;
-        lerpAmount = (p->oxygen - 50.0f) / 50.0f;
-    } 
-    //Blending from yellow to red
+    //Blending from green to yellowish orange
+    if(p->oxygen > MAX_OXYGEN / 2) {
+        startColor = PICO_8_ORANGE;
+        endColor = PICO_8_GREEN;
+        lerpAmount = p->oxygen / (MAX_OXYGEN / 2) - 1.0f;
+    }
+    //Blending from yellowish orange to red
     else {
-        startColor = RED;
-        endColor = YELLOW;
-        lerpAmount = p->oxygen / 50.0f;
+        startColor = PICO_8_RED;
+        endColor = PICO_8_ORANGE;
+        lerpAmount = p->oxygen / (MAX_OXYGEN / 2);
     }
 
-    Color finalColor = ColorLerp(startColor, endColor, lerpAmount);
-        
+    Color finalColor = interpolateColor(startColor, endColor, lerpAmount);
+
+    DrawRectangle(
+        (barX - 1) * currentWindowScale,
+        (barY - 1) * currentWindowScale,
+        (MAX_OXYGEN + 2) * currentWindowScale,
+        (barHeight + 2) * currentWindowScale,
+        PICO_8_BROWNISH_BLACK
+    );
+
     DrawRectangle(
         barX * currentWindowScale,
         barY * currentWindowScale,
@@ -192,7 +201,7 @@ void drawOxygenBar(Player *p){
         finalColor
     );
     
-    // Draw the the tank on top of the bar
+    //Draw the the tank on top of the oxygen bar
     Rectangle source = {0, 0, rm.oxyTank.width, rm.oxyTank.height};
     Rectangle dest = {
         tankX * currentWindowScale,

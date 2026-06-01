@@ -55,16 +55,25 @@ void updateFocusedButton(Menu *m) {
     }
 }
 
+void resetFocusedButton(Menu *m) {
+    if(m != NULL) {
+        m->buttons[m->focusedButton]->focused = false;
+        m->focusedButton = m->mainButton;
+    }
+}
+
 void updateGenericMenu(void *menu, float delta, void* additionalData) {
     Menu *m = (Menu*)menu;
 
-    updateFocusedButton(m);
+    if(consumeInputEvent(INPUT_UI_ESCAPE) && m->escapeAction != NULL) {
+        m->escapeAction(additionalData, m->targetState);
+        return;
+    }
 
-    Button *b = m->buttons[m->focusedButton];
-    if(consumeInputEvent(INPUT_UI_SELECT) && b->action != NULL && b->focused) b->action(additionalData, b->targetState);
+    bool selected = consumeInputEvent(INPUT_UI_SELECT);
+    bool clicked = consumeInputEvent(INPUT_UI_CLICK);
 
     Vector2 clickPos = GetMousePosition();
-    bool clicked = consumeInputEvent(INPUT_UI_CLICK);
     for(int i = 0; i < m->buttonCount; i++) {
         Button *b = (Button*)m->buttons[i];
         if(b != NULL && b->action != NULL) {
@@ -76,13 +85,16 @@ void updateGenericMenu(void *menu, float delta, void* additionalData) {
             };
 
             b->hovered = CheckCollisionPointRec(clickPos, bounds);
-            if(clicked && b->hovered) {
+            if(b->hovered && clicked) {
                 b->action(additionalData, b->targetState);
                 b->hovered = false;
             }
         }
     }
-    if(m->escapeAction != NULL && consumeInputEvent(INPUT_UI_ESCAPE)) m->escapeAction(additionalData, m->targetState);
+
+    updateFocusedButton(m);
+    Button *b = m->buttons[m->focusedButton];
+    if(b->focused && selected && b->action != NULL) b->action(additionalData, b->targetState);
 }
 
 void drawGenericMenu(void *menu, float alpha, void* additionalData) {

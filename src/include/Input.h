@@ -1,3 +1,6 @@
+#ifndef INPUT_H
+#define INPUT_H
+
 #include <stdbool.h>
 #include "Enums.h"
 
@@ -5,3 +8,5 @@
 
 void sendInputEvent(InputEvent input);
 bool consumeInputEvent(InputEvent input);
+
+#endif

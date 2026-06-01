@@ -24,6 +24,8 @@ Menu *createControlsMenu(void) {
     Rectangle btnVoltar = {9, 7, 23, 23};
 
     m->buttons[0] = createButton(&rm.backButton, btnVoltar, setStateIfWorldIsNull, GAME_MENU);
+    m->mainButton = 0;
+    m->focusedButton = m->mainButton;
 
     return m;
 } 

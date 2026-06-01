@@ -1,5 +1,6 @@
 #include "raylib/raylib.h"
 #include "Utils.h"
+#include "Colors.h"
 
 /**
  * @brief Clamps a number between the specified values
@@ -15,18 +16,6 @@ int clamp(int value, int min, int max) {
  */
 float interpolateFloat(float start, float end, float progress) {
     return start + (end - start) * progress;
-}
-
-/**
- * @brief Interpolates the progress between the specified start and end colors
- */
-struct Color interpolateColor(struct Color start, struct Color end, float progress) {
-    int lerpR = start.r + (int)((end.r - start.r) * progress);
-    int lerpG = start.g + (int)((end.g - start.g) * progress);
-    int lerpB = start.b + (int)((end.b - start.b) * progress);
-    int lerpA = start.a + (int)((end.a - start.a) * progress);
-
-    return (Color){lerpR, lerpG, lerpB, lerpA};
 }
 
 /**

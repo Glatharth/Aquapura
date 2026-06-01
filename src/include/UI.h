@@ -18,6 +18,7 @@ typedef struct Menu {
     Texture2D *background;
     void (*escapeAction)(void*, State);     //Params: game window, state
     State targetState;
+    int mainButton;
     int focusedButton;
     int buttonCount;
     Button *buttons[];
@@ -28,6 +29,7 @@ void destroyMenu(Menu **m);
 
 Button *createButton(Texture2D *texture, Rectangle bounds, void (*action)(void*, State), State targetState);
 void updateFocusedButton(Menu *m);
+void resetFocusedButton(Menu *m);
 
 void updateGenericMenu(void *menu, float delta, void* additionalData);
 void drawGenericMenu(void *menu, float alpha, void* additionalData);
