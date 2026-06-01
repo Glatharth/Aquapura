@@ -8,7 +8,8 @@
 typedef struct Button {
     Texture2D *texture;
     Rectangle bounds;
-    bool selected;
+    bool focused;
+    bool hovered;
     void (*action)(void*, State);           //Params: game window, state
     State targetState;
 } Button;
@@ -17,7 +18,7 @@ typedef struct Menu {
     Texture2D *background;
     void (*escapeAction)(void*, State);     //Params: game window, state
     State targetState;
-    int selectedButton;
+    int focusedButton;
     int buttonCount;
     Button *buttons[];
 } Menu;
@@ -26,6 +27,7 @@ Menu *buildMenu(int buttonCount);
 void destroyMenu(Menu **m);
 
 Button *createButton(Texture2D *texture, Rectangle bounds, void (*action)(void*, State), State targetState);
+void updateFocusedButton(Menu *m);
 
 void updateGenericMenu(void *menu, float delta, void* additionalData);
 void drawGenericMenu(void *menu, float alpha, void* additionalData);

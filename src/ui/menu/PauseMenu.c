@@ -22,7 +22,7 @@ Menu *createPauseMenu(void) {
     m->buttons[0] = createButton(&rm.controlsButton, btnControles, setGameState, GAME_CONTROLS);
     m->buttons[1] = createButton(&rm.backButton2, btnVoltar, setGameState, GAME_RUNNING);
     m->buttons[2] = createButton(&rm.menuButton, btnMenu, setGameState, GAME_MENU);
-    m->selectedButton = 1;
+    m->focusedButton = 1;
 
     return m;
 }

@@ -18,7 +18,7 @@ Menu *createGameOverMenu(void) {
 
     m->buttons[0] = createButton(&rm.menuButton, btnMenu, setGameState, GAME_MENU);
     m->buttons[1] = createButton(&rm.againButton, btnAgain, setGameState, GAME_RUNNING);
-    m->selectedButton = 1;
+    m->focusedButton = 1;
 
     return m;
 }

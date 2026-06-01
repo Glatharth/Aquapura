@@ -3,12 +3,13 @@
 #include "UI.h"
 #include "Input.h"
 #include "GlobalVariables.h"
+#include "Utils.h"
 
 Menu *buildMenu(int buttonCount) {
     Menu *m = malloc(sizeof(*m) + sizeof(*m->buttons) * buttonCount);
     m->escapeAction = NULL;
     m->targetState = GAME_MENU;
-    m->selectedButton = 0;
+    m->focusedButton = 0;
     m->buttonCount = buttonCount;
     return m;
 }
@@ -27,16 +28,43 @@ Button *createButton(Texture2D *texture, Rectangle bounds, void (*action)(void*,
     Button *b = malloc(sizeof(*b));
     b->texture = texture;
     b->bounds = bounds;
-    b->selected = false;
+    b->focused = false;
+    b->hovered = false;
     b->action = action;
     b->targetState = targetState;
     return b;
 }
 
+void updateFocusedButton(Menu *m) {
+    bool inputReceived = false;
+
+    int index = m->focusedButton;
+    if(consumeInputEvent(INPUT_UI_LEFT)) { inputReceived = true; index--; }
+    if(consumeInputEvent(INPUT_UI_RIGHT)) { inputReceived = true; index++; }
+    else if(consumeInputEvent(INPUT_UI_UP)) { inputReceived = true; index = 0; }
+    else if(consumeInputEvent(INPUT_UI_DOWN)) { inputReceived = true; index = m->buttonCount - 1; }
+
+    if(inputReceived) {
+        Button *b = m->buttons[m->focusedButton];
+        if(b->focused) {
+            b->focused = false;
+            m->focusedButton = clamp(index, 0, m->buttonCount - 1);
+            b = m->buttons[m->focusedButton];
+        }
+        b->focused = true;
+    }
+}
+
 void updateGenericMenu(void *menu, float delta, void* additionalData) {
     Menu *m = (Menu*)menu;
 
+    updateFocusedButton(m);
+
+    Button *b = m->buttons[m->focusedButton];
+    if(consumeInputEvent(INPUT_UI_SELECT) && b->action != NULL && b->focused) b->action(additionalData, b->targetState);
+
     Vector2 clickPos = GetMousePosition();
+    bool clicked = consumeInputEvent(INPUT_UI_CLICK);
     for(int i = 0; i < m->buttonCount; i++) {
         Button *b = (Button*)m->buttons[i];
         if(b != NULL && b->action != NULL) {
@@ -47,10 +75,10 @@ void updateGenericMenu(void *menu, float delta, void* additionalData) {
                 b->bounds.height * currentWindowScale
             };
 
-            b->selected = CheckCollisionPointRec(clickPos, bounds);
-            if(b->selected && consumeInputEvent(INPUT_UI_SELECT)) {
+            b->hovered = CheckCollisionPointRec(clickPos, bounds);
+            if(clicked && b->hovered) {
                 b->action(additionalData, b->targetState);
-                b->selected = false;
+                b->hovered = false;
             }
         }
     }
@@ -68,7 +96,7 @@ void drawButton(Button *b) {
     Rectangle source = {0, 0, (float)b->texture->width, (float)b->texture->height};
     Rectangle dest;
 
-    if(b->selected) {
+    if(b->focused || b->hovered) {
         float scale = 1.1;
         dest = (Rectangle){
             (b->bounds.x - (b->bounds.width * (scale - 1.0f) / 2.0f)) * currentWindowScale,

@@ -168,8 +168,8 @@ void drawNpc(Npc* n, float alpha){ //draws the npc
             textOffset.x = (int)(textOffset.x / 2);
             textOffset.y = (int)(textOffset.y / 2);
 
-            int x = (n->collision.x + n->collision.width / 2 - textOffset.x) * currentWindowScale;
-            int y = (n->collision.y + n->collision.height / 2 - textOffset.y - (int)(10 * (DEFAULT_REMOVAL_COUNTDOWN - n->removalCountdown))) * currentWindowScale;
+            int x = roundf((n->collision.x + n->collision.width / 2 - textOffset.x)) * currentWindowScale;
+            int y = roundf((n->collision.y + n->collision.height / 2 - textOffset.y - (int)(10 * (DEFAULT_REMOVAL_COUNTDOWN - n->removalCountdown)))) * currentWindowScale;
             drawOutlinedText(points, x, y, 10 * currentWindowScale, color, BLACK);
         }
     }

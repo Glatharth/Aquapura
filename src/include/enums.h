@@ -23,17 +23,18 @@ typedef enum NPCType {
 } NPCType;
 
 typedef enum InputEvent {
-    INPUT_UI_ESCAPE = 0,
-    INPUT_UI_UP = 1,
-    INPUT_UI_LEFT = 2,
-    INPUT_UI_DOWN = 3,
-    INPUT_UI_RIGHT = 4,
-    INPUT_UI_SELECT = 5,
-    INPUT_P1_MOVE_UP = 6,
-    INPUT_P1_MOVE_LEFT = 7,
-    INPUT_P1_MOVE_DOWN = 8,
-    INPUT_P1_MOVE_RIGHT = 9,
-    INPUT_P1_CAPTURE = 10,
+    INPUT_UI_ESCAPE,
+    INPUT_UI_UP,
+    INPUT_UI_LEFT,
+    INPUT_UI_DOWN,
+    INPUT_UI_RIGHT,
+    INPUT_UI_SELECT,
+    INPUT_UI_CLICK,
+    INPUT_P1_MOVE_UP,
+    INPUT_P1_MOVE_LEFT,
+    INPUT_P1_MOVE_DOWN,
+    INPUT_P1_MOVE_RIGHT,
+    INPUT_P1_CAPTURE
 } InputEvent;
 
 #endif

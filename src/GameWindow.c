@@ -58,7 +58,8 @@ void handleInputs(GameWindow *gw) {
     if(IsKeyPressed(KEY_LEFT)) sendInputEvent(INPUT_UI_LEFT);
     if(IsKeyPressed(KEY_DOWN)) sendInputEvent(INPUT_UI_DOWN);
     if(IsKeyPressed(KEY_RIGHT)) sendInputEvent(INPUT_UI_RIGHT);
-    if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) sendInputEvent(INPUT_UI_SELECT);
+    if(IsKeyPressed(KEY_ENTER)) sendInputEvent(INPUT_UI_SELECT);
+    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) sendInputEvent(INPUT_UI_CLICK);
 
     //Change window size
     if(IsKeyPressed(KEY_F4)) {
