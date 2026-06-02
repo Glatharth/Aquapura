@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "raylib/raylib.h"
-#include "enums.h"
+#include "Enums.h"
 
 typedef struct Button {
     Texture2D *texture;

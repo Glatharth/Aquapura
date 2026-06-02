@@ -1,1 +1,3 @@
 **/*.exe
+/build/bin/aquapura
+.idea
