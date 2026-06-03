@@ -99,16 +99,38 @@ FOR /R "%ObjDir%" %%F IN (*.o) DO (
 
 IF NOT EXIST "%BinDir%" MKDIR "%BinDir%"
 
-gcc !SrcFiles! !ObjFiles! -o "%CompiledFile%" -O2 -Wall -Wextra -Wno-unused-parameter -pedantic-errors -std=c99 -Wno-missing-braces "-I%SrcDir%\include" "-I%GeneratedDir%\include" -Llib -lraylib -lopengl32 -lgdi32 -lwinmm -mwindows
+:: --- JULIA DYNAMIC CONFIGURATION ---
+ECHO Fetching Julia configuration...
+FOR /F "usebackq delims=" %%i IN (`julia -e "print(joinpath(Sys.BINDIR, Base.DATAROOTDIR, \"julia\"))"`) DO SET "JL_SHARE=%%i"
+
+:: ADICIONE ESTA LINHA AQUI PARA PEGAR A PASTA BIN:
+FOR /F "usebackq delims=" %%i IN (`julia -e "print(Sys.BINDIR)"`) DO SET "JL_BINDIR=%%i"
+
+FOR /F "usebackq delims=" %%i IN (`julia "!JL_SHARE!\julia-config.jl" --cflags`) DO SET "RAW_JL_CFLAGS=%%i"
+
+FOR /F "usebackq delims=" %%i IN (`julia "!JL_SHARE!\julia-config.jl" --cflags`) DO SET "RAW_JL_CFLAGS=%%i"
+FOR /F "usebackq delims=" %%i IN (`julia "!JL_SHARE!\julia-config.jl" --ldflags`) DO SET "RAW_JL_LDFLAGS=%%i"
+FOR /F "usebackq delims=" %%i IN (`julia "!JL_SHARE!\julia-config.jl" --ldlibs`) DO SET "RAW_JL_LDLIBS=%%i"
+:: Removendo as aspas simples usando Delayed Expansion (!)
+
+SET "JL_CFLAGS=!RAW_JL_CFLAGS:'=!"
+SET "JL_LDFLAGS=!RAW_JL_LDFLAGS:'=!"
+SET "JL_LDLIBS=!RAW_JL_LDLIBS:'=!"
+:: -----------------------------------
+
+ECHO Executing GCC...
+gcc !SrcFiles! !ObjFiles! -o "%CompiledFile%" -O2 -Wall -Wextra -Wno-unused-parameter -pedantic-errors -std=c99 -Wno-missing-braces "-I%SrcDir%\include" "-I%GeneratedDir%\include" !JL_CFLAGS! !JL_LDFLAGS! !JL_LDLIBS! -Llib -lraylib -lopengl32 -lgdi32 -lwinmm -lpthread
 
 GOTO nextStep
 
 :run
 ECHO Running...
-IF EXIST %CompiledFile% ( %CompiledFile% ) ELSE ( ECHO %CompiledFile% does not exist! )
-GOTO nextStep
 
-:end
+:: Força o Windows a procurar as DLLs da Julia ANTES das do MinGW/GCC
+SET "PATH=!JL_BINDIR!;%PATH%"
+
+IF EXIST "%CompiledFile%" ( "%CompiledFile%" ) ELSE ( ECHO "%CompiledFile%" does not exist! )
+GOTO nextStep
 
 POPD
 ENDLOCAL
