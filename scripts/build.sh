@@ -26,16 +26,25 @@ CompiledFile="${BinDir}/aquapura"
 
 clean_project() {
     echo "Cleaning..."
-    rm -f $CompiledFile
+    rm -f "$CompiledFile"
 }
 
 compile_project() {
     echo "Compiling..."
 
     SrcFiles=$(find "$SrcDir" -name "*.c")
-    ObjFiles=$(find "$BuildDir" -path "${ObjDir}/windows/*" -prune -o -name "*.o")
+    ObjFiles=$(find "$BuildDir" -name "*.o" | grep -v "${ObjDir}/windows")
 
     mkdir -p "$BinDir"
+
+    # --- JULIA DYNAMIC CONFIGURATION ---
+    JL_SHARE=$(julia -e 'print(joinpath(Sys.BINDIR, Base.DATAROOTDIR, "julia"))')
+
+    # Extraindo as flags e removendo as aspas simples literais com 'tr'
+    JL_CFLAGS=$(julia "${JL_SHARE}/julia-config.jl" --cflags | tr -d "'")
+    JL_LDFLAGS=$(julia "${JL_SHARE}/julia-config.jl" --ldflags | tr -d "'")
+    JL_LDLIBS=$(julia "${JL_SHARE}/julia-config.jl" --ldlibs | tr -d "'")
+    # -----------------------------------
 
     gcc $SrcFiles $ObjFiles -o "$CompiledFile" \
         -O2 \
@@ -47,6 +56,9 @@ compile_project() {
         -Wno-missing-braces \
         "-I${SrcDir}/include/" \
         "-I${BuildDir}/generated/include/" \
+        $JL_CFLAGS \
+        $JL_LDFLAGS \
+        $JL_LDLIBS \
         -lraylib \
         -lGL \
         -lm \

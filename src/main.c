@@ -10,8 +10,10 @@
 #include <stdbool.h>
 
 #include "GameWindow.h"
+#include "julia/init.h"
 
 int main(void) {
+    initJulia();
 
     GameWindow *gameWindow = createGameWindow(
         640,                    // width
