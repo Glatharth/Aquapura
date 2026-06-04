@@ -16,6 +16,22 @@
 int main(void) {
     juliaInit();
 
+    if (juliaInit() != 0) {
+        printf("Erro fatal: Falha ao iniciar a Julia.\n");
+        return 1;
+    }
+
+    // 2. Busca as funções na memória e preenche o ponteiro "func_teste_bidirecional"
+    if (!prepararModelosIA()) {
+        printf("Erro fatal: Nao foi possivel cachear as funcoes.\n");
+        return 1;
+    }
+
+    // 3. AGORA SIM, com a estrada construída, podemos testar os carros!
+    printf("\n=== INICIANDO TESTE BIDIRECIONAL ===\n");
+    testarBidirecionalidade(150.0f, 80.0f); 
+    printf("=== FIM DO TESTE ===\n\n");
+
     GameWindow *gameWindow = createGameWindow(
         640,                    // width
         360,                    // height

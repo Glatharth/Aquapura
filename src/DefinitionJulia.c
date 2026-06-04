@@ -1,12 +1,12 @@
 #include "DefinitionJulia.h"
-#include <julia.h> // A biblioteca da Julia fica restrita e escondida aqui
+#include <julia.h>
 #include <stdio.h>
 
-// Cache para não buscar a função a cada frame (vital para performance)
+// Cache para não buscar a função a cada frame
 static jl_function_t *func_prever_acao = NULL;
+static jl_function_t *func_teste_bidirecional = NULL;
 
 // --- HELPERS PRIVADOS DE TRATAMENTO DE ERRO ---
-// Usamos "static" para que não conflitem com outras partes do código C
 
 static bool checkJuliaError(const char* context) {
     if (jl_exception_occurred()) {
@@ -39,46 +39,75 @@ void throwJuliaErrorFromC(const char* errorMessage) {
     jl_error(errorMessage); 
 }
 
+// --- IMPLEMENTAÇÃO DA FUNÇÃO C (CHAMADA PELA JULIA) ---
+
+AQUA_EXPORT void C_DispararEfeitoArcade(int tipoEfeito, float intensidade) {
+    printf("\n[C RECEPTOR] A Julia me chamou de volta!\n");
+    printf("[C RECEPTOR] Comando recebido -> Efeito ID: %d | Intensidade: %.2f\n", tipoEfeito, intensidade);
+    
+    if (tipoEfeito == 1) {
+        printf("[C RECEPTOR] Acao: Spawna um obstaculo massivo na tela!\n\n");
+    } else {
+        printf("[C RECEPTOR] Acao: Toca som de bonus!\n\n");
+    }
+}
+
 // --- IMPLEMENTAÇÃO DA API PARA O JOGO ---
 
 bool prepararModelosIA() {
-    // Procura a função principal de ML no módulo raiz da Julia
+    // Note que agora precisamos buscar a função real que o jogo vai usar também
     func_prever_acao = jl_get_function(jl_main_module, "prever_acao_ia");
-
-    if (func_prever_acao == NULL) {
-        printf("[DEFINITION ERRO] Funcao 'prever_acao_ia' nao encontrada nos scripts!\n");
-        return false;
-    }
-
-    printf("[DEFINITION] Modelos de IA cacheados e prontos para uso.\n");
+    func_teste_bidirecional = jl_get_function(jl_main_module, "avaliar_estado_arcade");
     return true;
 }
 
-AcaoBot preverAcaoBot(EstadoDoJogo estadoAtual) {
-    if (func_prever_acao == NULL) return ACAO_NENHUMA;
+float testarBidirecionalidade(float distanciaPercorrida, float energiaAtual) {
+    if (func_teste_bidirecional == NULL) return 0.0f;
 
-    // 1. Empacota a struct de C para tipos que a Julia entenda
-    jl_value_t *argX    = jl_box_float64((double)estadoAtual.posicaoX);
-    jl_value_t *argY    = jl_box_float64((double)estadoAtual.posicaoY);
-    jl_value_t *argDist = jl_box_float64((double)estadoAtual.distanciaProximoObstaculo);
+    printf("[C EMISSOR] Enviando dados para a Julia: Distancia %.2f, Energia %.2f\n", distanciaPercorrida, energiaAtual);
 
-    // 2. Executa a função (passando 3 argumentos)
-    jl_value_t *retorno = jl_call3(func_prever_acao, argX, argY, argDist);
+    jl_value_t *arg1 = jl_box_float64((double)distanciaPercorrida);
+    jl_value_t *arg2 = jl_box_float64((double)energiaAtual);
 
-    // 3. Valida se a Julia explodiu durante o cálculo
-    if (checkJuliaError("preverAcaoBot")) {
-        return ACAO_NENHUMA;
+    jl_value_t *retorno = jl_call2(func_teste_bidirecional, arg1, arg2);
+
+    float resultadoFinal = 0.0f;
+    if (jl_isa(retorno, (jl_value_t*)jl_float64_type)) {
+        resultadoFinal = (float)jl_unbox_float64(retorno);
+        printf("[C EMISSOR] Resultado final devolvido pela Julia: %.2f\n", resultadoFinal);
     }
 
-    // 4. Valida e extrai o resultado
-    if (validateJuliaType(retorno, jl_int64_type, "retorno de prever_acao_ia")) {
+    return resultadoFinal;
+}
+
+AcaoBot obterDecisaoDaIA(EstadoAquapura estado) {
+    if (func_prever_acao == NULL) return ACAO_ESPERAR;
+
+    double vetorEstado[4] = {
+        (double)estado.oxigenio,
+        (double)estado.distInimigo,
+        (double)estado.distBolha,
+        (double)estado.pontuacao
+    };
+
+    // Construção correta do tipo de array na API da Julia: Vector{Float64}
+    jl_value_t* array_type = jl_apply_array_type((jl_value_t*)jl_float64_type, 1);
+    
+    // Passaporte Zero-Copy
+    jl_array_t *arrayJulia = jl_ptr_to_array_1d(array_type, vetorEstado, 4, 0);
+
+    jl_value_t *retorno = jl_call1(func_prever_acao, (jl_value_t*)arrayJulia);
+
+    if (checkJuliaError("Execucao da IA do Aquapura")) {
+        return ACAO_ESPERAR; 
+    }
+
+    if (validateJuliaType(retorno, jl_int64_type, "decisao_ia")) {
         int decisao = (int)jl_unbox_int64(retorno);
-        
-        // Mapeia o inteiro seguro para o Enum do jogo
-        if (decisao >= 0 && decisao <= 2) {
+        if (decisao >= 0 && decisao <= 5) {
             return (AcaoBot)decisao;
         }
     }
 
-    return ACAO_NENHUMA;
+    return ACAO_ESPERAR;
 }
