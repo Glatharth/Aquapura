@@ -1,10 +1,3 @@
-/**
- * @file GameWorld.h
- * @author Prof. Dr. David Buzatto
- * @brief GameWorld struct and function declarations.
- * 
- * @copyright Copyright (c) 2025
- */
 #ifndef GAMEWORLD_H
 #define GAMEWORLD_H
 
@@ -22,8 +15,14 @@
 #define SPAWN_DECREMENT 0.025f
 #define BUBBLE_SPAWN_INTERVAL 6.0f
 
+#define MAX_PLAYERS 100 // Limite máximo de jogadores simultâneos para a IA
+
 typedef struct GameWorld {
-    Player *player;
+    Player *jogadores[MAX_PLAYERS]; 
+    double pontuacoes[MAX_PLAYERS]; 
+    int numJogadoresAtivos;         
+    int maxJogadoresAtuais;         
+    
     Npc *npc[MAX_NPC];
     int activeNpc;
     float gameTime;
@@ -36,64 +35,21 @@ typedef struct GameWorld {
     int npcSpeed;
 } GameWorld;
 
-/**
- * @brief Creates a dinamically allocated GameWorld struct instance.
- */
 GameWorld* createGameWorld(void);
-
-/**
- * @brief Destroys a GameWorld object and its dependecies.
- */
 void destroyGameWorld(GameWorld **gw);
-
-/**
- * @brief Reads user input and updates the state of the game.
- */
+void resetarGameWorld(int qtdPlayers);
 void updateGameWorld(void *gameWorld, float delta, void *additionalData);
-
-/**
- * @brief Draws the state of the game.
- */
 void drawGameWorld(void *gameWorld, float alpha, void *additionalData);
-
-/**
- * @brief Draws the environment behind all entities.
- */
 void drawBackground(float animTime);
-
-/**
- * @brief Draws the environment in front of all entities.
- */
 void drawForeground(float animTime);
-
-/**
- * @brief Toggles HUD visibility.
- */
 void toggleHUD(void);
-
-/**
- * @brief Toggles invulnerability.
- */
 void toggleOxygen(void);
-
-/**
- * @brief Toggles random speed for NPCs.
- */
 void toggleRandomSpeed(void);
-
-/**
- * @brief Toggles fish visuals for the player.
- */
 void toggleFishPlayer(void);
-
-/**
- * @brief Toggles animal spawning.
- */
 void toggleAnimals(void);
-
-/**
- * @brief Sets the current NPC spawn interval.
- */
 void setInterval(GameWorld *gw, float t);
 
-#endif
+float calcularDistanciaInimigoMaisProximo(GameWorld *gw, Player *p);
+float calcularDistanciaBolhaMaisProxima(GameWorld *gw, Player *p);
+
+#endif // GAMEWORLD_H

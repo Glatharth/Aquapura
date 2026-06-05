@@ -8,6 +8,7 @@
 #include "Input.h"
 #include "Utils.h"
 #include "Colors.h"
+#include "DefinitionJulia.h" // Precisamos disso para acessar o enum AcaoBot
 
 extern bool drawPlayerAsFish;
 
@@ -110,49 +111,77 @@ void drawPlayer(Player *p, float alpha, float animTime){
     */
 }
 
-void updatePlayer(Player *p, float delta){
-    //Damage cooldown (invincibility frames)
+// ... resto do seu código de criação e desenho do Player ...
+
+void updatePlayer(Player *p, float delta, bool controladoPorIA, AcaoBot acaoIA) {
+    // 1. Cooldown de dano e timer da rede (mantidos iguais)
     if(p->damageCooldown > 0) {
         p->damageCooldown = fmax(0, p->damageCooldown - delta);
     }
-
-    //Net attack timer
     if(p->netTimer > 0) {
         p->netTimer = fmax(0, p->netTimer - delta);
-    }
-
-    //Only use net if the timer is set to 0
-    if(consumeInputEvent(INPUT_P1_CAPTURE)) {
-        if(p->netTimer == 0) p->netTimer = 0.4;
     }
 
     p->prevPos.x = p->collision.x;
     p->prevPos.y = p->collision.y;
 
-    //Player movement
-    if(consumeInputEvent(INPUT_P1_MOVE_RIGHT)){
+
+    // ==========================================
+    // 2. ABSTRAÇÃO DE INPUT (O Segredo da Integração)
+    // ==========================================
+    bool tentarCapturar = false;
+    bool moverDireita = false;
+    bool moverEsquerda = false;
+    bool moverCima = false;
+    bool moverBaixo = false;
+
+    if (controladoPorIA) {
+        // Se a IA está no controle, traduzimos o Enum da Julia para intenções de movimento
+        if (acaoIA == ACAO_CAPTURAR) tentarCapturar = true;
+        if (acaoIA == ACAO_FRENTE)   moverDireita = true;
+        if (acaoIA == ACAO_TRAS)     moverEsquerda = true;
+        if (acaoIA == ACAO_CIMA)     moverCima = true;
+        if (acaoIA == ACAO_BAIXO)    moverBaixo = true;
+    } else {
+        // Se o jogador humano está no controle, lemos os eventos do teclado/controle
+        tentarCapturar = consumeInputEvent(INPUT_P1_CAPTURE);
+        moverDireita   = consumeInputEvent(INPUT_P1_MOVE_RIGHT);
+        moverEsquerda  = consumeInputEvent(INPUT_P1_MOVE_LEFT);
+        moverCima      = consumeInputEvent(INPUT_P1_MOVE_UP);
+        moverBaixo     = consumeInputEvent(INPUT_P1_MOVE_DOWN);
+    }
+
+
+    // ==========================================
+    // 3. APLICAÇÃO DA FÍSICA E REGRAS DO JOGO
+    // ==========================================
+    
+    // Ação de Captura
+    if(tentarCapturar) {
+        if(p->netTimer == 0) p->netTimer = 0.4;
+    }
+
+    // Movimentação com base nas variáveis booleanas abstratas
+    if(moverDireita){
         p->realPos.x += p->speed.x * delta;
         p->lastDir = DIR_RIGHT;
     }
-    if(consumeInputEvent(INPUT_P1_MOVE_LEFT)){
+    if(moverEsquerda){
         p->realPos.x -= p->speed.x * delta;
         p->lastDir = DIR_LEFT;
     }
-    if(consumeInputEvent(INPUT_P1_MOVE_UP)){
+    if(moverCima){
         p->realPos.y -= p->speed.y * delta;
     }
-    if(consumeInputEvent(INPUT_P1_MOVE_DOWN)){
+    if(moverBaixo){
         p->realPos.y += p->speed.y * delta;
     }
 
-    //Ensures the player's oxygen levels don't go past the limit
+    // Restante das regras originais mantidas perfeitamente
     p->oxygen = fmin(p->oxygen, MAX_OXYGEN);
-
-    //Border collision
     p->realPos.x = fmin(fmax(0, p->realPos.x), globalPixelWidth - p->collision.width);
     p->realPos.y = fmin(fmax(globalWaterSurfaceHeight, p->realPos.y), globalFloorHeight - p->collision.height);
 
-    //Aligns the collision to the pixel grid without losing position data
     p->collision.x = roundf(p->realPos.x);
     p->collision.y = roundf(p->realPos.y);
 }

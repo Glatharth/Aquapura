@@ -3,45 +3,27 @@
 
 #include <stdbool.h>
 
-// --- MACRO DE EXPORTAÇÃO (O Segredo do Windows) ---
 #ifdef _WIN32
     #define AQUA_EXPORT __declspec(dllexport)
 #else
     #define AQUA_EXPORT
 #endif
 
-// As ações possíveis que a Julia pode comandar
 typedef enum {
-    ACAO_ESPERAR = 0,
-    ACAO_CIMA = 1,
-    ACAO_BAIXO = 2,
-    ACAO_FRENTE = 3,
-    ACAO_TRAS = 4,
-    ACAO_CAPTURAR = 5
+    ACAO_ESPERAR = 0, ACAO_CIMA = 1, ACAO_BAIXO = 2,
+    ACAO_FRENTE = 3, ACAO_TRAS = 4, ACAO_CAPTURAR = 5
 } AcaoBot;
-
-// O Vetor de Estado (A visão de mundo da IA)
-typedef struct {
-    float oxigenio;
-    float distInimigo;
-    float distBolha;
-    float pontuacao;
-} EstadoAquapura;
-
-
-// --- API PARA O SEU MAIN.C ---
 
 // Prepara e cacheia as funções da Julia
 bool prepararModelosIA();
 
-// Envia o frame atual para o modelo e retorna o comando (Substituiu o preverAcaoBot)
-AcaoBot obterDecisaoDaIA(EstadoAquapura estadoAtual);
+// Envia a população inteira para a Julia e preenche o vetor de ações retornado
+void obterDecisoesDaPopulacao(double *vetorEstados, int numJogadores, int *vetorAcoes);
 
-// Uma função de teste que envia dados para a Julia
-float testarBidirecionalidade(float distanciaPercorrida, float energiaAtual);
+// Avisa a Julia que a geração acabou (todos morreram) e passa as pontuações
+void notificarFimDeGeracao(double *vetorPontuacoes, int numJogadores);
 
-
-// --- FUNÇÃO DO C (A Julia vai chamar esta) ---
-AQUA_EXPORT void C_DispararEfeitoArcade(int tipoEfeito, float intensidade);
+// --- FUNÇÃO DO C (A Julia vai chamar esta para reiniciar) ---
+AQUA_EXPORT void C_ReiniciarMundo(int quantidadeDeJogadores);
 
 #endif // DEFINITIONJULIA_H

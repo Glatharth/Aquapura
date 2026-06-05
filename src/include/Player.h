@@ -3,6 +3,7 @@
 
 #include "raylib/raylib.h"
 #include "Enums.h"
+#include "DefinitionJulia.h" // Precisamos disso para acessar o enum AcaoBot
 
 #define MAX_OXYGEN 100
 
@@ -30,7 +31,7 @@ typedef struct Player {
 
 Player* createPlayer(void);
 
-void updatePlayer(Player *p, float delta);
+void updatePlayer(Player *p, float delta, bool controladoPorIA, AcaoBot acaoIA);
 
 void drawPlayer(Player *p, float alpha, float animTime);
 

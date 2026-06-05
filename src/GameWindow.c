@@ -14,28 +14,21 @@ int currentWindowScale = 2;
 
 const bool debug = false;
 
-/**
- * @brief Ran every frame. Handles the logic behind updating and drawing new frames.
- */
 void gameLoopLogic(GameWindow *gw) {
     if(IsMusicStreamPlaying(*gw->music)) UpdateMusicStream(*gw->music);
     handleInputs(gw);
 
-    //Draws and updates the current subject if it exists
     if(gw->updateTarget != NULL) {
-        //Tick related calculations
         static float updateTimer = 0.0f;
         updateTimer += GetFrameTime();
         float desiredDeltaTime = 1.0f / gw->tickRate;
         int logicUpdates = 0;
 
-        //Sends the correct amount of updates (capped)
         while(updateTimer >= desiredDeltaTime && logicUpdates < MAX_UPDATES_PER_FRAME) {
             if(gw->target != NULL) gw->updateTarget(gw->target, desiredDeltaTime, gw);
             updateTimer -= desiredDeltaTime;
             logicUpdates++;
         }
-        //Manually resets the timer if the loop quit early and skipped some updates
         if(logicUpdates == MAX_UPDATES_PER_FRAME) updateTimer = 0;
 
         float frameAlpha = updateTimer / desiredDeltaTime;
@@ -44,16 +37,12 @@ void gameLoopLogic(GameWindow *gw) {
     }
 }
 
-/**
- * @brief Handles the logic behind immediate key presses.
- */
 void handleInputs(GameWindow *gw) {
     if(IsKeyPressed(KEY_ESCAPE)) {
         sendInputEvent(INPUT_UI_ESCAPE);
         return;
     }
 
-    //UI inputs
     if(IsKeyPressed(KEY_UP)) sendInputEvent(INPUT_UI_UP);
     if(IsKeyPressed(KEY_LEFT)) sendInputEvent(INPUT_UI_LEFT);
     if(IsKeyPressed(KEY_DOWN)) sendInputEvent(INPUT_UI_DOWN);
@@ -61,7 +50,6 @@ void handleInputs(GameWindow *gw) {
     if(IsKeyPressed(KEY_ENTER)) sendInputEvent(INPUT_UI_SELECT);
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) sendInputEvent(INPUT_UI_CLICK);
 
-    //Change window size
     if(IsKeyPressed(KEY_F4)) {
         int scaleFactor = 2;
         int newWidth = GetScreenWidth() + globalPixelWidth * scaleFactor;
@@ -71,7 +59,6 @@ void handleInputs(GameWindow *gw) {
             SetWindowSize(newWidth, newHeight);
             currentWindowScale += scaleFactor;
 
-            //If the new resolution is the same as the monitor
             if(GetMonitorWidth(0) == newWidth && GetMonitorHeight(0) == newHeight) {
                 ToggleBorderlessWindowed();
             }
@@ -82,20 +69,22 @@ void handleInputs(GameWindow *gw) {
             SetWindowSize(globalPixelWidth * currentWindowScale, globalPixelHeight * currentWindowScale);
         }
 
-        //Center the window
         SetWindowPosition((GetMonitorWidth(0) - GetScreenWidth()) / 2, (GetMonitorHeight(0) - GetScreenHeight()) / 2);
     }
 
-    //Ingame inputs
     if(gw->state == GAME_RUNNING) {
-        Player *p = gw->gameWorld->player;
-        if(IsKeyDown(p->key.moveUp)) sendInputEvent(INPUT_P1_MOVE_UP);
-        if(IsKeyDown(p->key.moveLeft)) sendInputEvent(INPUT_P1_MOVE_LEFT);
-        if(IsKeyDown(p->key.moveDown)) sendInputEvent(INPUT_P1_MOVE_DOWN);
-        if(IsKeyDown(p->key.moveRight)) sendInputEvent(INPUT_P1_MOVE_RIGHT);
-        if(IsKeyDown(p->key.capture)) sendInputEvent(INPUT_P1_CAPTURE);
+        // CORREÇÃO: Lê o input do teclado e manda para o PRIMEIRO jogador da rede (Clone 0)
+        // Assim você ainda pode testar o teclado caso queira forçar movimentos nele.
+        Player *p = gw->gameWorld->jogadores[0];
+        
+        if (p != NULL) {
+            if(IsKeyDown(p->key.moveUp)) sendInputEvent(INPUT_P1_MOVE_UP);
+            if(IsKeyDown(p->key.moveLeft)) sendInputEvent(INPUT_P1_MOVE_LEFT);
+            if(IsKeyDown(p->key.moveDown)) sendInputEvent(INPUT_P1_MOVE_DOWN);
+            if(IsKeyDown(p->key.moveRight)) sendInputEvent(INPUT_P1_MOVE_RIGHT);
+            if(IsKeyDown(p->key.capture)) sendInputEvent(INPUT_P1_CAPTURE);
+        }
 
-        //Ingame debug commands
         if(debug) {
             if(IsKeyPressed(KEY_F1)) toggleHUD();
             if(IsKeyPressed(KEY_F2)) toggleOxygen();
@@ -113,19 +102,10 @@ void handleInputs(GameWindow *gw) {
 }
 
 GameWindow* createGameWindow(
-    int width, 
-    int height, 
-    const char *title, 
-    int targetFPS,
-    bool antialiasing, 
-    bool resizable, 
-    bool fullScreen,
-    bool undecorated, 
-    bool alwaysOnTop, 
-    bool invisibleBackground, 
-    bool alwaysRun, 
-    bool loadResources, 
-    bool initAudio ) {
+    int width, int height, const char *title, int targetFPS,
+    bool antialiasing, bool resizable, bool fullScreen,
+    bool undecorated, bool alwaysOnTop, bool invisibleBackground, 
+    bool alwaysRun, bool loadResources, bool initAudio ) {
 
     GameWindow *gw = malloc(sizeof(*gw));
     gw->width = width;
@@ -163,7 +143,6 @@ void initGameWindow(GameWindow *gw) {
     if(!gw->initialized) {
         gw->initialized = true;
     
-        //Window properties
         if(gw->targetFPS == 0) SetConfigFlags(FLAG_VSYNC_HINT);
         if(gw->antialiasing) SetConfigFlags(FLAG_MSAA_4X_HINT);
         if(gw->resizable) SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -180,10 +159,8 @@ void initGameWindow(GameWindow *gw) {
 
         if(gw->loadResources) loadResourcesResourceManager();
 
-        //Set up the initial game state
         setGameState(gw, GAME_MENU);
 
-        //Main game loop
         while(!WindowShouldClose()) {
             gameLoopLogic(gw);
         }
@@ -197,14 +174,10 @@ void initGameWindow(GameWindow *gw) {
         }
 
         destroyGameWindow(&gw);
-
         CloseWindow();
     }
 }
 
-/**
- * @brief Changes the current game state and does all the necessary work behind it.
- */
 void setGameState(void *gameWindow, State newState) {
     GameWindow *gw = (GameWindow*)gameWindow;
 
@@ -233,7 +206,7 @@ void setGameState(void *gameWindow, State newState) {
             gw->drawTarget = drawGameWorld;
             gw->target = gw->gameWorld;
             gw->music = &rm.bg_tune;
-            SetMusicVolume(*gw->music, 0.5f); //Normal volume during gameplay
+            SetMusicVolume(*gw->music, 0.5f); 
             SetMusicPitch(*gw->music, 1.0f);
 
             resetFocusedButton(gw->mainMenu);
@@ -241,7 +214,6 @@ void setGameState(void *gameWindow, State newState) {
             resetFocusedButton(gw->creditsMenu);
             resetFocusedButton(gw->gameOverMenu);
             resetFocusedButton(gw->pauseMenu);
-
             break;
 
         case GAME_OVER:
@@ -263,8 +235,8 @@ void setGameState(void *gameWindow, State newState) {
             gw->drawTarget = drawPauseMenu;
             gw->target = gw->pauseMenu;
             gw->music = &rm.bg_tune;
-            SetMusicVolume(*gw->music, 0.2f); //Muffled volume
-            SetMusicPitch(*gw->music, 0.5f); //Slightly lower pitch
+            SetMusicVolume(*gw->music, 0.2f); 
+            SetMusicPitch(*gw->music, 0.5f); 
             break;
 
         case GAME_CONTROLS:
@@ -287,7 +259,6 @@ void setGameState(void *gameWindow, State newState) {
             gw->music = &rm.bg_tune;
             break;
 
-        //TODO: error screen
         default:
             SetExitKey(KEY_ESCAPE);
             gw->tickRate = MENU_TICK_RATE;
@@ -301,9 +272,6 @@ void setGameState(void *gameWindow, State newState) {
     gw->state = newState;
 }
 
-/**
- * @brief Processes the current drawing function of the game window.
- */
 void drawGameWindow(GameWindow *gw, float alpha) {
     BeginDrawing();
     if(gw->drawTarget != NULL) gw->drawTarget(gw->target, alpha, gw);
@@ -311,9 +279,6 @@ void drawGameWindow(GameWindow *gw, float alpha) {
     EndDrawing();
 }
 
-/**
- * @brief Destroys a GameWindow object and its dependecies.
- */
 void destroyGameWindow(GameWindow **gw) {
     if(gw == NULL || *gw == NULL) return;
 

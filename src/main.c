@@ -3,11 +3,11 @@
  * @author Prof. Dr. David Buzatto
  * @brief Main function and logic for the game. Base template for game
  * development in C using Raylib (https://www.raylib.com/).
- * 
- * @copyright Copyright (c) 2025
+ * * @copyright Copyright (c) 2025
  */
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "GameWindow.h"
 #include "ConfigJulia.h"
@@ -21,16 +21,10 @@ int main(void) {
         return 1;
     }
 
-    // 2. Busca as funções na memória e preenche o ponteiro "func_teste_bidirecional"
     if (!prepararModelosIA()) {
         printf("Erro fatal: Nao foi possivel cachear as funcoes.\n");
         return 1;
     }
-
-    // 3. AGORA SIM, com a estrada construída, podemos testar os carros!
-    printf("\n=== INICIANDO TESTE BIDIRECIONAL ===\n");
-    testarBidirecionalidade(150.0f, 80.0f); 
-    printf("=== FIM DO TESTE ===\n\n");
 
     GameWindow *gameWindow = createGameWindow(
         640,                    // width
@@ -48,11 +42,9 @@ int main(void) {
         true                    // init audio
     );
 
-    
     initGameWindow( gameWindow );
 
     juliaClose();
 
     return 0;
-
 }
