@@ -9,11 +9,6 @@
     #define AQUA_EXPORT
 #endif
 
-typedef enum {
-    ACAO_ESPERAR = 0, ACAO_CIMA = 1, ACAO_BAIXO = 2,
-    ACAO_FRENTE = 3, ACAO_TRAS = 4, ACAO_CAPTURAR = 5
-} AcaoBot;
-
 // Prepara e cacheia as funções da Julia
 bool prepararModelosIA();
 
@@ -25,5 +20,7 @@ void notificarFimDeGeracao(double *vetorPontuacoes, int numJogadores);
 
 // --- FUNÇÃO DO C (A Julia vai chamar esta para reiniciar) ---
 AQUA_EXPORT void C_ReiniciarMundo(int quantidadeDeJogadores);
+AQUA_EXPORT void C_ConfigurarDificuldade(float spawnInterval, int npcSpeed);
+AQUA_EXPORT void C_ConfigurarSpawn(int probAnimal, int probGarbage);
 
 #endif // DEFINITIONJULIA_H

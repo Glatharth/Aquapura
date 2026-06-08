@@ -23,7 +23,7 @@ typedef struct Npc {
     float removalCountdown;
 } Npc;
 
-Npc* createNpc(float speed);
+Npc* createNpc(float speed, NPCType type);
 
 Npc* createBubble(float speed);
 

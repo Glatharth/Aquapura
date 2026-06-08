@@ -8,7 +8,7 @@
 #include "Input.h"
 #include "Utils.h"
 #include "Colors.h"
-#include "DefinitionJulia.h" // Precisamos disso para acessar o enum AcaoBot
+#include "Enums.h"
 
 extern bool drawPlayerAsFish;
 

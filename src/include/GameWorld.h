@@ -33,6 +33,9 @@ typedef struct GameWorld {
     int escapedEnemies;
     int caughtEnemies;
     int npcSpeed;
+    
+    int probAnimal;
+    int probGarbage;
 } GameWorld;
 
 GameWorld* createGameWorld(void);
@@ -48,6 +51,10 @@ void toggleRandomSpeed(void);
 void toggleFishPlayer(void);
 void toggleAnimals(void);
 void setInterval(GameWorld *gw, float t);
+
+void setGameDifficulty(float interval, int speed);
+void setSpawnProbabilities(int probAnimal, int probGarbage);
+void setGameMode(GameMode mode);
 
 float calcularDistanciaInimigoMaisProximo(GameWorld *gw, Player *p);
 float calcularDistanciaBolhaMaisProxima(GameWorld *gw, Player *p);

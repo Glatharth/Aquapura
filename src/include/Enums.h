@@ -37,4 +37,20 @@ typedef enum InputEvent {
     INPUT_P1_CAPTURE
 } InputEvent;
 
+typedef enum GameMode {
+    MODE_HUMAN_ONLY,
+    MODE_AI_TRAINING,
+    MODE_AI_PLAY,
+    MODE_HUMAN_AND_AI
+} GameMode;
+
+typedef enum {
+    ACAO_ESPERAR = 0,
+    ACAO_CIMA = 1,
+    ACAO_BAIXO = 2,
+    ACAO_FRENTE = 3,
+    ACAO_TRAS = 4,
+    ACAO_CAPTURAR = 5
+} AcaoBot;
+
 #endif
