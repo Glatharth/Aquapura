@@ -14,13 +14,13 @@
 extern bool hudVisible;
 extern bool onlySpawnGarbage;
 
-Npc* createNpc(float speed){ //creates the npc with the starting values
+Npc* createNpc(float speed, NPCType type){ //creates the npc with the starting values
     Npc *n = (Npc*)malloc(sizeof(Npc));
     if (n == NULL) {
         return NULL;
     }
 
-    n->type = onlySpawnGarbage ? NPC_GARBAGE : GetRandomValue(0, 1); // 0 = Animal 1 = Garbage
+    n->type = type;
     n->speed.x = speed;
     n->speed.y = 0;
 

@@ -26,6 +26,18 @@ AQUA_EXPORT void C_ReiniciarMundo(int quantidadeDeJogadores) {
     resetarGameWorld(quantidadeDeJogadores);
 }
 
+AQUA_EXPORT void C_ConfigurarDificuldade(float spawnInterval, int npcSpeed) {
+    printf("[C RECEPTOR] Dificuldade alterada: spawnInterval=%.2f, npcSpeed=%d\n", spawnInterval, npcSpeed);
+    extern void setGameDifficulty(float interval, int speed);
+    setGameDifficulty(spawnInterval, npcSpeed);
+}
+
+AQUA_EXPORT void C_ConfigurarSpawn(int probAnimal, int probGarbage) {
+    printf("[C RECEPTOR] Spawn configurado: Animal=%d%%, Lixo=%d%%\n", probAnimal, probGarbage);
+    extern void setSpawnProbabilities(int probAnimal, int probGarbage);
+    setSpawnProbabilities(probAnimal, probGarbage);
+}
+
 bool prepararModelosIA() {
     func_avaliar_populacao = jl_get_function(jl_main_module, "avaliar_populacao");
     func_fim_geracao = jl_get_function(jl_main_module, "fim_de_geracao");

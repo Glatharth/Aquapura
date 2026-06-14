@@ -28,6 +28,7 @@ bool randomSpeed = true;
 bool drawPlayerAsFish = false;
 bool onlySpawnGarbage = false;
 
+GameMode currentMode = MODE_HUMAN_ONLY;
 static GameWorld *instanciaGlobalMundo = NULL;
 
 GameWorld* createGameWorld(void) {
@@ -36,8 +37,10 @@ GameWorld* createGameWorld(void) {
     
     gw->spawnInterval = INITIAL_SPAWN_INTERVAL;
     gw->npcSpeed = 60;
+    gw->probAnimal = 50;
+    gw->probGarbage = 50;
 
-    resetarGameWorld(50); 
+    setGameMode(MODE_HUMAN_ONLY); 
     return gw;
 }
 
@@ -144,6 +147,30 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
             }
             gw->numJogadoresAtivos = 0;
         }
+
+        if (IsKeyPressed(KEY_F6)) setGameMode(MODE_HUMAN_ONLY);
+        if (IsKeyPressed(KEY_F7)) setGameMode(MODE_AI_TRAINING);
+        if (IsKeyPressed(KEY_F8)) setGameMode(MODE_AI_PLAY);
+        if (IsKeyPressed(KEY_F9)) setGameMode(MODE_HUMAN_AND_AI);
+        
+        if (IsKeyPressed(KEY_EIGHT)) {
+            gw->npcSpeed = fmax(60, gw->npcSpeed - 10);
+            gw->spawnInterval = fmin(INITIAL_SPAWN_INTERVAL * 2, gw->spawnInterval + 0.1f);
+            gw->probGarbage = 50;
+            gw->probAnimal = 50;
+        }
+        if (IsKeyPressed(KEY_NINE)) {
+            gw->npcSpeed = fmin(MAX_NPC_SPEED, gw->npcSpeed + 10);
+            gw->spawnInterval = fmax(MIN_SPAWN_INTERVAL, gw->spawnInterval - 0.1f);
+            gw->probGarbage = 50;
+            gw->probAnimal = 50;
+        }
+        if (IsKeyPressed(KEY_ZERO)) {
+            gw->npcSpeed = 60;
+            gw->spawnInterval = INITIAL_SPAWN_INTERVAL;
+            gw->probGarbage = 50;
+            gw->probAnimal = 50;
+        }
         // ========================================================
         
         double vetorEstados[MAX_PLAYERS * 5];
@@ -167,7 +194,9 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
             }
         }
 
-        obterDecisoesDaPopulacao(vetorEstados, gw->maxJogadoresAtuais, vetorAcoes);
+        if (currentMode != MODE_HUMAN_ONLY) {
+            obterDecisoesDaPopulacao(vetorEstados, gw->maxJogadoresAtuais, vetorAcoes);
+        }
 
         bool todosMortos = true;
 
@@ -176,7 +205,14 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
             
             if(p != NULL && p->oxygen > 0) {
                 todosMortos = false;
-                updatePlayer(p, delta, true, (AcaoBot)vetorAcoes[i]);
+                
+                bool isAi = false;
+                if (currentMode == MODE_AI_TRAINING || currentMode == MODE_AI_PLAY) isAi = true;
+                if (currentMode == MODE_HUMAN_AND_AI && i == 1) isAi = true;
+                
+                AcaoBot acao = isAi ? (AcaoBot)vetorAcoes[i] : ACAO_ESPERAR;
+                updatePlayer(p, delta, isAi, acao);
+                
                 gw->pontuacoes[i] += delta * 10.0;
             }
         }
@@ -187,7 +223,19 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
                 for (int i = 0; i < MAX_NPC; i++) {
                     if (gw->npc[i] == NULL) {
                         int npcSpeed = randomSpeed ? fmin(gw->npcSpeed + GetRandomValue(0, 100), MAX_NPC_SPEED) : gw->npcSpeed;
-                        gw->npc[i] = createNpc(npcSpeed);
+                        
+                        NPCType typeToSpawn;
+                        if (onlySpawnGarbage) {
+                            typeToSpawn = NPC_GARBAGE;
+                        } else {
+                            int totalProb = gw->probAnimal + gw->probGarbage;
+                            if (totalProb <= 0) totalProb = 100;
+                            int randVal = GetRandomValue(1, totalProb);
+                            if (randVal <= gw->probAnimal) typeToSpawn = NPC_ANIMAL;
+                            else typeToSpawn = NPC_GARBAGE;
+                        }
+                        
+                        gw->npc[i] = createNpc(npcSpeed, typeToSpawn);
                         gw->activeNpc++;
                         break;                   
                     }
@@ -278,7 +326,11 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
         }
         
         if (todosMortos || gw->numJogadoresAtivos <= 0) {
-            notificarFimDeGeracao(gw->pontuacoes, gw->maxJogadoresAtuais);
+            if (currentMode == MODE_AI_TRAINING) {
+                notificarFimDeGeracao(gw->pontuacoes, gw->maxJogadoresAtuais);
+            } else {
+                setGameState(additionalData, GAME_OVER);
+            }
         }
     }
 }
@@ -459,4 +511,24 @@ void toggleAnimals(void) {
 
 void setInterval(GameWorld *gw, float t) {
     gw->spawnInterval = t;
+}
+
+void setGameDifficulty(float interval, int speed) {
+    if (instanciaGlobalMundo == NULL) return;
+    instanciaGlobalMundo->spawnInterval = interval;
+    instanciaGlobalMundo->npcSpeed = speed;
+}
+
+void setSpawnProbabilities(int probAnimal, int probGarbage) {
+    if (instanciaGlobalMundo == NULL) return;
+    instanciaGlobalMundo->probAnimal = probAnimal;
+    instanciaGlobalMundo->probGarbage = probGarbage;
+}
+
+void setGameMode(GameMode mode) {
+    currentMode = mode;
+    if (mode == MODE_HUMAN_ONLY) resetarGameWorld(1);
+    else if (mode == MODE_AI_TRAINING) resetarGameWorld(50);
+    else if (mode == MODE_AI_PLAY) resetarGameWorld(1);
+    else if (mode == MODE_HUMAN_AND_AI) resetarGameWorld(2);
 }
