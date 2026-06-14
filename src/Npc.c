@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <math.h>
 
 #include "Npc.h"
@@ -8,6 +9,8 @@
 #include "GlobalVariables.h"
 #include "ResourceManager.h"
 #include "Utils.h"
+
+extern float globalBubbleOxygen;
 
 #define DEFAULT_REMOVAL_COUNTDOWN 0.5
 
@@ -66,6 +69,7 @@ Npc* createNpc(float speed, NPCType type){ //creates the npc with the starting v
     n->removeOnCollision = false;
     n->shouldBeRemoved = false;
     n->removalCountdown = DEFAULT_REMOVAL_COUNTDOWN;
+    memset(n->capturedBy, 0, sizeof(n->capturedBy));
 
     return n;
 }
@@ -93,13 +97,14 @@ Npc* createBubble(float speed){ //creates a bubble with the starting values
     n->waveTime = GetRandomValue(0, 5);
     n->waveAmplitude = GetRandomValue(2, 4);
 
-    n->collisionOxygen = 25;
+    n->collisionOxygen = globalBubbleOxygen;
     n->captureOxygen = 0;
     n->captureScore = 0;
     
     n->removeOnCollision = true;
     n->shouldBeRemoved = false;
     n->removalCountdown = 0.1;
+    memset(n->capturedBy, 0, sizeof(n->capturedBy));
 
     return n;
 }

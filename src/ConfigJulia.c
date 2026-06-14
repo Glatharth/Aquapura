@@ -52,8 +52,14 @@ void loadJuliaScriptsFromDirectory(const char *folderPath) {
 int juliaInit() {
     printf("[CONFIG] Inicializando VM da Julia...\n");
     jl_init();
+    
+    // Ativa o ambiente local (Project.toml) para ter acesso ao Flux e outras dependências
+    printf("[CONFIG] Ativando ambiente local Julia...\n");
+    jl_eval_string("using Pkg; Pkg.activate(\".\")");
 
-    loadJuliaScriptsFromDirectory(JULIA_SCRIPTS_PATH);
+    // Carrega apenas o script principal, que já importa suas dependências
+    printf("[CONFIG] Carregando script principal...\n");
+    jl_eval_string("include(\"src/julia/IaPlayer.jl\")");
 
     if (jl_exception_occurred()) {
         printf("[CONFIG ERRO] Nao foi possivel carregar ou executar os arquivos Julia.\n");

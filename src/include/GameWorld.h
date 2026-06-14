@@ -15,11 +15,10 @@
 #define SPAWN_DECREMENT 0.025f
 #define BUBBLE_SPAWN_INTERVAL 6.0f
 
-#define MAX_PLAYERS 100 // Limite máximo de jogadores simultâneos para a IA
+
 
 typedef struct GameWorld {
     Player *jogadores[MAX_PLAYERS]; 
-    double pontuacoes[MAX_PLAYERS]; 
     int numJogadoresAtivos;         
     int maxJogadoresAtuais;         
     
@@ -56,7 +55,7 @@ void setGameDifficulty(float interval, int speed);
 void setSpawnProbabilities(int probAnimal, int probGarbage);
 void setGameMode(GameMode mode);
 
-float calcularDistanciaInimigoMaisProximo(GameWorld *gw, Player *p);
-float calcularDistanciaBolhaMaisProxima(GameWorld *gw, Player *p);
+void obterPosicaoInimigoMaisProximo(GameWorld *gw, Player *p, int playerIndex, float *x, float *y);
+void obterPosicaoLixoMaisProxima(GameWorld *gw, Player *p, int playerIndex, float *x, float *y);
 
 #endif // GAMEWORLD_H

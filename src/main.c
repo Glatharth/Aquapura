@@ -14,8 +14,6 @@
 #include "DefinitionJulia.h"
 
 int main(void) {
-    juliaInit();
-
     if (juliaInit() != 0) {
         printf("Erro fatal: Falha ao iniciar a Julia.\n");
         return 1;

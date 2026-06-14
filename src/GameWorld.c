@@ -13,6 +13,17 @@
 #include "Player.h"
 #include "Npc.h"
 #include "GameMechanics.h"
+
+// Regras de ambiente dinâmicas controladas pela Julia
+float globalBubbleOxygen = 25.0f;
+float globalSurfaceRegen = 6.0f;
+float globalMissedPenalty = 0.0f;
+
+void setEnvironmentRules(float bubbleOxy, float surfaceReg, float penaltyMissedGbg) {
+    globalBubbleOxygen = bubbleOxy;
+    globalSurfaceRegen = surfaceReg;
+    globalMissedPenalty = penaltyMissedGbg;
+}
 #include "Score.h"
 #include "Input.h"
 #include "DefinitionJulia.h" 
@@ -66,7 +77,6 @@ void resetarGameWorld(int qtdPlayers) {
             free(gw->jogadores[i]);
             gw->jogadores[i] = NULL;
         }
-        gw->pontuacoes[i] = 0.0;
     }
 
     for(int i = 0; i < MAX_NPC; i++) {
@@ -94,33 +104,7 @@ void resetarGameWorld(int qtdPlayers) {
     gw->maxJogadoresAtuais = limit;
 }
 
-float calcularDistanciaInimigoMaisProximo(GameWorld *gw, Player *p) {
-    if (!p) return 1000.0f;
-    float menor_distancia = 9999.0f;
-    for(int i = 0; i < MAX_NPC; i++) {
-        if(gw->npc[i] != NULL && gw->npc[i]->type == NPC_GARBAGE) {
-            float dist = gw->npc[i]->collision.x - (p->collision.x + p->collision.width);
-            if(dist > 0 && dist < menor_distancia) {
-                menor_distancia = dist;
-            }
-        }
-    }
-    return menor_distancia == 9999.0f ? 1000.0f : menor_distancia;
-}
-
-float calcularDistanciaBolhaMaisProxima(GameWorld *gw, Player *p) {
-    if (!p) return 1000.0f;
-    float menor_distancia = 9999.0f;
-    for(int i = 0; i < MAX_NPC; i++) {
-        if(gw->npc[i] != NULL && gw->npc[i]->type == NPC_BUBBLE) {
-            float dist = gw->npc[i]->collision.x - (p->collision.x + p->collision.width);
-            if(dist > 0 && dist < menor_distancia) {
-                menor_distancia = dist;
-            }
-        }
-    }
-    return menor_distancia == 9999.0f ? 1000.0f : menor_distancia;
-}
+// Funções antigas de radar foram removidas. A filtragem agora ocorre na Julia.
 
 void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
     GameWorld *gw = (GameWorld*)gameWorld;
@@ -173,29 +157,57 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
         }
         // ========================================================
         
-        double vetorEstados[MAX_PLAYERS * 5];
-        int vetorAcoes[MAX_PLAYERS];
+        static double *vetorEstados = NULL;
+        static int *vetorAcoes = NULL;
+        static float *colisoesNesteFrame = NULL;
+        if (!vetorEstados) {
+            // Buffer de memória para todos os NPCs e Jogadores
+            int tamanhoMaximo = 2 + (MAX_NPC * 4) + (MAX_PLAYERS * 4);
+            vetorEstados = (double*)malloc(tamanhoMaximo * sizeof(double));
+            vetorAcoes = (int*)malloc(MAX_PLAYERS * sizeof(int));
+            colisoesNesteFrame = (float*)calloc(MAX_PLAYERS, sizeof(float));
+        }
 
+        int idxEstados = 0;
+        
+        // 1. Despeja informações de todos os NPCs vivos
+        int idxNpcCount = idxEstados++; // Guarda a posição para escrever o total
+        int actualNpcs = 0;
+        
+        for(int i = 0; i < MAX_NPC; i++) {
+            if(gw->npc[i] != NULL && !gw->npc[i]->shouldBeRemoved) {
+                vetorEstados[idxEstados++] = gw->npc[i]->type;
+                vetorEstados[idxEstados++] = gw->npc[i]->collision.x;
+                vetorEstados[idxEstados++] = gw->npc[i]->collision.y;
+                vetorEstados[idxEstados++] = gw->npc[i]->speed.x; 
+                actualNpcs++;
+            }
+        }
+        vetorEstados[idxNpcCount] = actualNpcs; // Atualiza com o valor real
+
+        // 2. Despeja informações de todos os Jogadores (IAs)
+        vetorEstados[idxEstados++] = gw->maxJogadoresAtuais;
         for(int i = 0; i < gw->maxJogadoresAtuais; i++) {
             Player *p = gw->jogadores[i];
             
             if(p != NULL && p->oxygen > 0) {
-                vetorEstados[i*5 + 0] = p->oxygen;
-                vetorEstados[i*5 + 1] = calcularDistanciaInimigoMaisProximo(gw, p);
-                vetorEstados[i*5 + 2] = calcularDistanciaBolhaMaisProxima(gw, p);
-                vetorEstados[i*5 + 3] = gw->pontuacoes[i]; 
-                vetorEstados[i*5 + 4] = 1.0; 
+                vetorEstados[idxEstados++] = p->collision.x;
+                vetorEstados[idxEstados++] = p->collision.y;
+                vetorEstados[idxEstados++] = p->oxygen;
+                vetorEstados[idxEstados++] = colisoesNesteFrame[i]; 
+                
+                colisoesNesteFrame[i] = 0.0f;
             } else {
-                vetorEstados[i*5 + 0] = 0.0;
-                vetorEstados[i*5 + 1] = 0.0;
-                vetorEstados[i*5 + 2] = 0.0;
-                vetorEstados[i*5 + 3] = gw->pontuacoes[i];
-                vetorEstados[i*5 + 4] = 0.0; 
+                vetorEstados[idxEstados++] = -1.0;
+                vetorEstados[idxEstados++] = -1.0;
+                vetorEstados[idxEstados++] = -1.0;
+                vetorEstados[idxEstados++] = -1.0;
+                colisoesNesteFrame[i] = 0.0f;
             }
         }
 
         if (currentMode != MODE_HUMAN_ONLY) {
-            obterDecisoesDaPopulacao(vetorEstados, gw->maxJogadoresAtuais, vetorAcoes);
+            obterDecisoesDaPopulacao(vetorEstados, idxEstados, gw->maxJogadoresAtuais, vetorAcoes);
         }
 
         bool todosMortos = true;
@@ -211,9 +223,13 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
                 if (currentMode == MODE_HUMAN_AND_AI && i == 1) isAi = true;
                 
                 AcaoBot acao = isAi ? (AcaoBot)vetorAcoes[i] : ACAO_ESPERAR;
-                updatePlayer(p, delta, isAi, acao);
                 
-                gw->pontuacoes[i] += delta * 10.0;
+                // ACAO_MORRER (6) é forçada pelo Julia (Timeout ou Suicídio intencional)
+                if (acao == ACAO_MORRER) {
+                    p->oxygen = 0;
+                } else {
+                    updatePlayer(p, delta, isAi, acao);
+                }
             }
         }
 
@@ -279,12 +295,27 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
                     for(int j = 0; j < gw->maxJogadoresAtuais; j++) {
                         Player *p = gw->jogadores[j];
                         if(p != NULL && p->oxygen > 0) {
+                            if (currentMode == MODE_AI_TRAINING && gw->npc[i]->capturedBy[j]) {
+                                continue;
+                            }
+
+                            bool oldRemoved = gw->npc[i]->shouldBeRemoved;
                             checkNpcCapture(gw, p, gw->npc[i]);
-                            checkNpcCollision(p, gw->npc[i]);
+                            if (!gw->npc[i]->shouldBeRemoved) {
+                                checkNpcCollision(p, gw->npc[i]);
+                            }
                             
-                            if(gw->npc[i]->shouldBeRemoved) {
-                                gw->pontuacoes[j] += 500.0;
-                                break; 
+                            if(!oldRemoved && gw->npc[i]->shouldBeRemoved) {
+                                float penalty_or_bonus = gw->npc[i]->captureScore * 100.0f;
+                                
+                                colisoesNesteFrame[j] += penalty_or_bonus;
+                                
+                                if (currentMode == MODE_AI_TRAINING) {
+                                    gw->npc[i]->shouldBeRemoved = false;
+                                    gw->npc[i]->capturedBy[j] = true;
+                                } else {
+                                    break; 
+                                }
                             }
                         }
                     }
@@ -295,6 +326,17 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
 
                         if(gw->npc[i]->type == NPC_GARBAGE) {
                             gw->escapedEnemies++;
+                            
+                            // Aplica penalidade a todas as IAs ativas se deixarem o lixo fugir
+                            if (currentMode != MODE_HUMAN_ONLY && globalMissedPenalty > 0.0f) {
+                                for(int j = 0; j < gw->maxJogadoresAtuais; j++) {
+                                    if(gw->jogadores[j] != NULL && gw->jogadores[j]->oxygen > 0) {
+                                        if(!gw->npc[i]->capturedBy[j]) {
+                                            colisoesNesteFrame[j] -= globalMissedPenalty; 
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -307,7 +349,7 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
                 if(p != NULL && p->oxygen > 0){
                     if(p->collision.y == globalWaterSurfaceHeight && p->netTimer == 0) {
                         if(p->oxygen < MAX_OXYGEN) {
-                            p->oxygen = fmin(p->oxygen + 6 * delta, MAX_OXYGEN);
+                            p->oxygen = fmin(p->oxygen + globalSurfaceRegen * delta, MAX_OXYGEN);
                         }
                     }
                     else if(p->collision.y + p->collision.height / 2 < (globalPixelHeight * 2 / 3)) {
@@ -327,7 +369,8 @@ void updateGameWorld(void *gameWorld, float delta, void* additionalData) {
         
         if (todosMortos || gw->numJogadoresAtivos <= 0) {
             if (currentMode == MODE_AI_TRAINING) {
-                notificarFimDeGeracao(gw->pontuacoes, gw->maxJogadoresAtuais);
+                notificarFimDeGeracao();
+                resetarGameWorld(gw->maxJogadoresAtuais);
             } else {
                 setGameState(additionalData, GAME_OVER);
             }
@@ -346,9 +389,9 @@ void drawGameWorld(void *gameWorld, float alpha, void* additionalData) {
             // Desenha o peixe/mergulhador
             drawPlayer(gw->jogadores[i], alpha, animTime);
             
-            // --- DESENHA A PONTUAÇÃO FLUTUANTE ---
+            // --- DESENHA O ID FLUTUANTE ---
             char txtScore[16];
-            sprintf(txtScore, "%.0f", gw->pontuacoes[i]);
+            sprintf(txtScore, "ID: %d", i);
             
             // Calcula a posição centralizada acima da cabeça
             Vector2 textSize = MeasureTextEx(GetFontDefault(), txtScore, 10, 1);
@@ -527,8 +570,21 @@ void setSpawnProbabilities(int probAnimal, int probGarbage) {
 
 void setGameMode(GameMode mode) {
     currentMode = mode;
-    if (mode == MODE_HUMAN_ONLY) resetarGameWorld(1);
-    else if (mode == MODE_AI_TRAINING) resetarGameWorld(50);
-    else if (mode == MODE_AI_PLAY) resetarGameWorld(1);
-    else if (mode == MODE_HUMAN_AND_AI) resetarGameWorld(2);
+    if (mode == MODE_HUMAN_ONLY) {
+        resetarGameWorld(1);
+        SetTargetFPS(60);
+    }
+    else if (mode == MODE_AI_TRAINING) {
+        extern int obterQtdJogadoresJulia();
+        resetarGameWorld(obterQtdJogadoresJulia());
+        SetTargetFPS(0); // Acelera o jogo apenas no modo de treinamento
+    }
+    else if (mode == MODE_AI_PLAY) {
+        resetarGameWorld(1);
+        SetTargetFPS(60);
+    }
+    else if (mode == MODE_HUMAN_AND_AI) {
+        resetarGameWorld(2);
+        SetTargetFPS(60);
+    }
 }
