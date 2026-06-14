@@ -3,18 +3,28 @@
  * @author Prof. Dr. David Buzatto
  * @brief Main function and logic for the game. Base template for game
  * development in C using Raylib (https://www.raylib.com/).
- * 
- * @copyright Copyright (c) 2025
+ * * @copyright Copyright (c) 2025
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "GameWindow.h"
-
-GameWorld *gw;
+#include "ConfigJulia.h"
+#include "DefinitionJulia.h"
 
 int main(void) {
+    juliaInit();
+
+    if (juliaInit() != 0) {
+        printf("Erro fatal: Falha ao iniciar a Julia.\n");
+        return 1;
+    }
+
+    if (!prepararModelosIA()) {
+        printf("Erro fatal: Nao foi possivel cachear as funcoes.\n");
+        return 1;
+    }
 
     GameWindow *gameWindow = createGameWindow(
         640,                    // width
@@ -29,12 +39,12 @@ int main(void) {
         false,                  // invisible background
         false,                  // always run
         true,                   // load resources
-        true                   // init audio
+        true                    // init audio
     );
 
-    
     initGameWindow( gameWindow );
 
-    return 0;
+    juliaClose();
 
+    return 0;
 }

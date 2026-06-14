@@ -3,13 +3,11 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "raylib/raylib.h"
-
 #include "Npc.h"
 #include "Score.h"
 #include "GlobalVariables.h"
 #include "ResourceManager.h"
-#include "utils.h"
+#include "Utils.h"
 
 #define DEFAULT_REMOVAL_COUNTDOWN 0.5
 
@@ -43,6 +41,7 @@ Npc* createNpc(float speed){ //creates the npc with the starting values
 
         n->collisionOxygen = -10;
         n->captureOxygen = -20;
+        n->waveAmplitude = GetRandomValue(1, 2);
     }
     else{ //NPC_GARBAGE
         n->variant = GetRandomValue(0, 10);
@@ -52,10 +51,17 @@ Npc* createNpc(float speed){ //creates the npc with the starting values
         n->collisionOxygen = -20;
         n->captureOxygen = 0;
         n->captureScore = 1;
+        n->waveAmplitude = GetRandomValue(1, 5);
     }
 
     n->collision.x = globalPixelWidth + 16; //Padding so the textures don't immediately pop into view
-    n->collision.y = (int)GetRandomValue(globalWaterSurfaceHeight + 8, (globalFloorHeight - n->collision.height));
+    n->collision.y = GetRandomValue(globalWaterSurfaceHeight + 8, (globalFloorHeight - n->collision.height));
+    n->realPos.x = n->collision.x;
+    n->realPos.y = n->collision.y;
+    n->prevPos.x = n->collision.x;
+    n->prevPos.y = n->collision.y;
+    n->spawnLocation = n->collision.y;
+    n->waveTime = GetRandomValue(-5, 5);
     
     n->removeOnCollision = false;
     n->shouldBeRemoved = false;
@@ -79,6 +85,13 @@ Npc* createBubble(float speed){ //creates a bubble with the starting values
 
     n->collision.x = (int)GetRandomValue(globalPixelWidth / 2, globalPixelWidth - n->collision.width);
     n->collision.y = globalPixelHeight;
+    n->realPos.x = n->collision.x;
+    n->realPos.y = n->collision.y;
+    n->prevPos.x = n->collision.x;
+    n->prevPos.y = n->collision.y;
+    n->spawnLocation = n->collision.x;
+    n->waveTime = GetRandomValue(0, 5);
+    n->waveAmplitude = GetRandomValue(2, 4);
 
     n->collisionOxygen = 25;
     n->captureOxygen = 0;
@@ -91,7 +104,7 @@ Npc* createBubble(float speed){ //creates a bubble with the starting values
     return n;
 }
 
-void drawNpc(Npc* n){ //draws the npc
+void drawNpc(Npc* n, float alpha){ //draws the npc
     if(!n->shouldBeRemoved) {
         Texture2D *texture;
 
@@ -104,8 +117,8 @@ void drawNpc(Npc* n){ //draws the npc
 
         Rectangle source = (Rectangle){0, 0, (float)texture->width, (float)texture->height};
         Rectangle dest = {
-            (int)(n->collision.x + n->collision.width / 2) * currentWindowScale,
-            (int)(n->collision.y + n->collision.height / 2) * currentWindowScale,
+            roundf(interpolateFloat(n->prevPos.x, n->collision.x, alpha) + n->collision.width / 2) * currentWindowScale,
+            roundf(interpolateFloat(n->prevPos.y, n->collision.y, alpha) + n->collision.height / 2) * currentWindowScale,
             source.width * currentWindowScale,
             source.height * currentWindowScale
         };
@@ -155,20 +168,20 @@ void drawNpc(Npc* n){ //draws the npc
             textOffset.x = (int)(textOffset.x / 2);
             textOffset.y = (int)(textOffset.y / 2);
 
-            int x = (n->collision.x + n->collision.width / 2 - textOffset.x) * currentWindowScale;
-            int y = (n->collision.y + n->collision.height / 2 - textOffset.y - (int)(10 * (DEFAULT_REMOVAL_COUNTDOWN - n->removalCountdown))) * currentWindowScale;
+            int x = roundf((n->collision.x + n->collision.width / 2 - textOffset.x)) * currentWindowScale;
+            int y = roundf((n->collision.y + n->collision.height / 2 - textOffset.y - (int)(10 * (DEFAULT_REMOVAL_COUNTDOWN - n->removalCountdown)))) * currentWindowScale;
             drawOutlinedText(points, x, y, 10 * currentWindowScale, color, BLACK);
         }
     }
 }
 
-void drawBubble(Npc* n) { //draws the bubble
+void drawBubble(Npc* n, float alpha) { //draws the bubble
     Texture2D *texture;
 
     Rectangle source = {0, 0, 16, 16};
     Rectangle dest = {
-        (int)(n->collision.x + n->collision.width / 2) * currentWindowScale,
-        (int)(n->collision.y + n->collision.height / 2) * currentWindowScale,
+        roundf(interpolateFloat(n->prevPos.x, n->collision.x, alpha) + n->collision.width / 2) * currentWindowScale,
+        roundf(interpolateFloat(n->prevPos.y, n->collision.y, alpha) + n->collision.height / 2) * currentWindowScale,
         16 * currentWindowScale,
         16 * currentWindowScale
     };
@@ -196,33 +209,31 @@ void drawBubble(Npc* n) { //draws the bubble
 }
 
 void updateNpc(Npc *n, float delta){ //update the npc position and state
-    static float waveTimer = 0;
-
     if(n->shouldBeRemoved) {
         n->removalCountdown -= delta;
     }
     else {
+        n->prevPos.x = n->collision.x;
+        n->prevPos.y = n->collision.y;
+
+        n->waveTime += delta;
+
         if(n->type == NPC_BUBBLE) {
             //Bubble 
-            n->collision.y -= n->speed.y * delta;
-            n->collision.x += (0.5 * cos(waveTimer * 2));
+            n->realPos.y -= n->speed.y * delta;
+            n->realPos.x = n->spawnLocation + (n->waveAmplitude * n->waveTime * cos(n->waveTime * 4)) - delta * 2;
 
-            if(n->collision.y < globalWaterSurfaceHeight) {
+            if(n->realPos.y < globalWaterSurfaceHeight) {
                 n->shouldBeRemoved = true;
             }
         }
         else {
             //Animal or garbage
-            n->collision.x -= n->speed.x * delta;
-
-            if(n->type == NPC_ANIMAL) {
-                n->collision.y += (0.15 * cos(waveTimer * 2));
-            }
-            else {
-                n->collision.y += (0.3 * cos(waveTimer * 0.5));
-            }
+            n->realPos.x -= n->speed.x * delta;
+            n->realPos.y = n->spawnLocation + (n->waveAmplitude * cos(n->waveTime * 2));
         }
-    }
 
-    waveTimer += delta;
+        n->collision.x = roundf(n->realPos.x);
+        n->collision.y = roundf(n->realPos.y);
+    }
 }

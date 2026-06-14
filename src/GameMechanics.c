@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 
@@ -6,10 +5,13 @@
 
 #include "GameMechanics.h"
 #include "GlobalVariables.h"
+#include "GameWorld.h"
+#include "Player.h"
+#include "Npc.h"
 
 extern bool pauseOxygen;
 
-void checkNpcCollision(Player* p, Npc* n) {
+void checkNpcCollision(struct Player *p, struct Npc *n) {
     //Only check for collision if the player is not intangible
     if(p->damageCooldown == 0) {
         //Checks if the NPC collided with the player
@@ -24,7 +26,7 @@ void checkNpcCollision(Player* p, Npc* n) {
     }
 }
 
-void checkNpcCapture(GameWorld *gw, Player* p, Npc* n) {
+void checkNpcCapture(struct GameWorld *gw, struct Player *p, struct Npc *n) {
     //Checks if the player is currently using the net
     if(p->netTimer > 0 && p->netTimer < 0.25) {
         Rectangle netRec = {
@@ -35,7 +37,7 @@ void checkNpcCapture(GameWorld *gw, Player* p, Npc* n) {
         };
 
         switch(p->lastDir) {
-            case LEFT: netRec.x -= p->netOffset; break;
+            case DIR_LEFT: netRec.x -= p->netOffset; break;
             default: netRec.x += p->netOffset;
         }
 
@@ -52,7 +54,7 @@ void checkNpcCapture(GameWorld *gw, Player* p, Npc* n) {
     }
 }
 
-void awardCollisionBonus(Player* p, Npc* n) {
+void awardCollisionBonus(struct Player *p, struct Npc *n) {
     //Awards the player with the NPC's oxygen bonus. May be positive or negative.
     if(!pauseOxygen) p->oxygen = fmin(p->oxygen + n->collisionOxygen, MAX_OXYGEN);
 
@@ -62,7 +64,7 @@ void awardCollisionBonus(Player* p, Npc* n) {
     }
 }
 
-void awardCaptureBonus(Player* p, Npc* n) {
+void awardCaptureBonus(struct Player *p, struct Npc *n) {
     //Awards the player with the NPC's score and oxygen bonuses. May be positive or negative.
     score += n->captureScore;
     p->oxygen = fmin(p->oxygen + n->captureOxygen, MAX_OXYGEN);
