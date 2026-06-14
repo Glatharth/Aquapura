@@ -10,6 +10,8 @@
 #include "UI.h"
 #include "Input.h"
 
+extern GameMode currentMode;
+
 int currentWindowScale = 2;
 
 const bool debug = false;
@@ -19,21 +21,30 @@ void gameLoopLogic(GameWindow *gw) {
     handleInputs(gw);
 
     if(gw->updateTarget != NULL) {
-        static float updateTimer = 0.0f;
-        updateTimer += GetFrameTime();
         float desiredDeltaTime = 1.0f / gw->tickRate;
-        int logicUpdates = 0;
 
-        while(updateTimer >= desiredDeltaTime && logicUpdates < MAX_UPDATES_PER_FRAME) {
-            if(gw->target != NULL) gw->updateTarget(gw->target, desiredDeltaTime, gw);
-            updateTimer -= desiredDeltaTime;
-            logicUpdates++;
+        if (currentMode == MODE_AI_TRAINING) {
+            // MODO FAST FORWARD (Acelera 50x a simulação sem sobrecarregar a renderização visual)
+            for(int i = 0; i < 50; i++) {
+                if(gw->target != NULL) gw->updateTarget(gw->target, desiredDeltaTime, gw);
+            }
+            drawGameWindow(gw, 1.0f);
+        } else {
+            static float updateTimer = 0.0f;
+            updateTimer += GetFrameTime();
+            int logicUpdates = 0;
+
+            while(updateTimer >= desiredDeltaTime && logicUpdates < MAX_UPDATES_PER_FRAME) {
+                if(gw->target != NULL) gw->updateTarget(gw->target, desiredDeltaTime, gw);
+                updateTimer -= desiredDeltaTime;
+                logicUpdates++;
+            }
+            if(logicUpdates == MAX_UPDATES_PER_FRAME) updateTimer = 0;
+
+            float frameAlpha = updateTimer / desiredDeltaTime;
+
+            drawGameWindow(gw, frameAlpha);
         }
-        if(logicUpdates == MAX_UPDATES_PER_FRAME) updateTimer = 0;
-
-        float frameAlpha = updateTimer / desiredDeltaTime;
-
-        drawGameWindow(gw, frameAlpha);
     }
 }
 

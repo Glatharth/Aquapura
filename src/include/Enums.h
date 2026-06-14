@@ -1,6 +1,8 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+#define MAX_PLAYERS 2000
+
 typedef enum State {
     GAME_MENU,
     GAME_RUNNING,
@@ -50,7 +52,8 @@ typedef enum {
     ACAO_BAIXO = 2,
     ACAO_FRENTE = 3,
     ACAO_TRAS = 4,
-    ACAO_CAPTURAR = 5
+    ACAO_CAPTURAR = 5,
+    ACAO_MORRER = 6
 } AcaoBot;
 
 #endif

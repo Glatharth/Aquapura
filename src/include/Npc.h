@@ -21,6 +21,7 @@ typedef struct Npc {
     float waveTime;
     int waveAmplitude;
     float removalCountdown;
+    bool capturedBy[MAX_PLAYERS];
 } Npc;
 
 Npc* createNpc(float speed, NPCType type);

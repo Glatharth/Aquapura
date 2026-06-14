@@ -136,12 +136,20 @@ void updatePlayer(Player *p, float delta, bool controladoPorIA, AcaoBot acaoIA) 
     bool moverBaixo = false;
 
     if (controladoPorIA) {
-        // Se a IA está no controle, traduzimos o Enum da Julia para intenções de movimento
-        if (acaoIA == ACAO_CAPTURAR) tentarCapturar = true;
-        if (acaoIA == ACAO_FRENTE)   moverDireita = true;
-        if (acaoIA == ACAO_TRAS)     moverEsquerda = true;
-        if (acaoIA == ACAO_CIMA)     moverCima = true;
-        if (acaoIA == ACAO_BAIXO)    moverBaixo = true;
+        // Modelo de ação: bits 0-2 para movimento, bit 3 para captura, bit 4 para suicídio (timeout)
+        int moveAction = acaoIA & 0x07;
+        int captureFlag = acaoIA & 0x08;
+        int suicideFlag = acaoIA & 0x10;
+        
+        if (suicideFlag) {
+            p->oxygen = -1.0f; // Morte forçada pela IA
+        }
+        
+        if (captureFlag) tentarCapturar = true;
+        if (moveAction == ACAO_FRENTE)   moverDireita = true;
+        if (moveAction == ACAO_TRAS)     moverEsquerda = true;
+        if (moveAction == ACAO_CIMA)     moverCima = true;
+        if (moveAction == ACAO_BAIXO)    moverBaixo = true;
     } else {
         // Se o jogador humano está no controle, lemos os eventos do teclado/controle
         tentarCapturar = consumeInputEvent(INPUT_P1_CAPTURE);
@@ -159,6 +167,8 @@ void updatePlayer(Player *p, float delta, bool controladoPorIA, AcaoBot acaoIA) 
     // Ação de Captura
     if(tentarCapturar) {
         if(p->netTimer == 0) p->netTimer = 0.4;
+        // IAs sempre viram para a direita ao capturar (lixo vem da direita)
+        if(controladoPorIA) p->lastDir = DIR_RIGHT;
     }
 
     // Movimentação com base nas variáveis booleanas abstratas

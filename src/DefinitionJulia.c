@@ -9,11 +9,10 @@ static bool checkJuliaError(const char* context) {
     if (jl_exception_occurred()) {
         printf("\n[JULIA ERROR] Falha ao executar: %s\n", context);
         jl_eval_string(
-            "if !isnothing(catch_backtrace()) \n"
-            "   showerror(stderr, catch_backtrace()[1][1], catch_backtrace()[2]) \n"
-            "   println(stderr) \n"
-            "end"
+            "Base.showerror(stderr, current_exceptions()[1].exception, current_exceptions()[1].backtrace)\n"
+            "println(stderr)\n"
         );
+        jl_exception_clear();
         return true; 
     }
     return false;
@@ -38,19 +37,23 @@ AQUA_EXPORT void C_ConfigurarSpawn(int probAnimal, int probGarbage) {
     setSpawnProbabilities(probAnimal, probGarbage);
 }
 
+AQUA_EXPORT void C_ConfigurarRegrasDeAmbiente(float bubbleOxy, float surfaceReg, float penaltyMissedGbg) {
+    printf("[C RECEPTOR] Regras de Ambiente IA: Bolha=%.1f, Superficie=%.1f, PenalidadeLixo=%.1f\n", bubbleOxy, surfaceReg, penaltyMissedGbg);
+    extern void setEnvironmentRules(float bubbleOxy, float surfaceReg, float penaltyMissedGbg);
+    setEnvironmentRules(bubbleOxy, surfaceReg, penaltyMissedGbg);
+}
+
 bool prepararModelosIA() {
     func_avaliar_populacao = jl_get_function(jl_main_module, "avaliar_populacao");
     func_fim_geracao = jl_get_function(jl_main_module, "fim_de_geracao");
     return true;
 }
 
-void obterDecisoesDaPopulacao(double *vetorEstados, int numJogadores, int *vetorAcoes) {
+void obterDecisoesDaPopulacao(double *vetorEstados, int tamanhoArray, int numJogadores, int *vetorAcoes) {
     if (func_avaliar_populacao == NULL) return;
 
-    int tamanhoTotal = numJogadores * 5;
-
     jl_value_t* array_type = jl_apply_array_type((jl_value_t*)jl_float64_type, 1);
-    jl_array_t *arrayJulia = jl_ptr_to_array_1d(array_type, vetorEstados, tamanhoTotal, 0);
+    jl_array_t *arrayJulia = jl_ptr_to_array_1d(array_type, vetorEstados, tamanhoArray, 0);
 
     jl_value_t *retorno = jl_call1(func_avaliar_populacao, (jl_value_t*)arrayJulia);
 
@@ -65,12 +68,17 @@ void obterDecisoesDaPopulacao(double *vetorEstados, int numJogadores, int *vetor
     }
 }
 
-void notificarFimDeGeracao(double *vetorPontuacoes, int numJogadores) {
+void notificarFimDeGeracao() {
     if (func_fim_geracao == NULL) return;
 
-    jl_value_t* array_type = jl_apply_array_type((jl_value_t*)jl_float64_type, 1);
-    jl_array_t *arrayJulia = jl_ptr_to_array_1d(array_type, vetorPontuacoes, numJogadores, 0);
-
-    jl_call1(func_fim_geracao, (jl_value_t*)arrayJulia);
+    jl_call0(func_fim_geracao);
     checkJuliaError("fim_de_geracao");
+}
+
+int obterQtdJogadoresJulia() {
+    jl_value_t *ret = jl_eval_string("ConfigIA.QTD_PLAYERS");
+    if (ret != NULL && jl_typeis(ret, jl_int64_type)) {
+        return jl_unbox_int64(ret);
+    }
+    return 15; // default fallback
 }

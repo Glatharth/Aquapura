@@ -69,9 +69,9 @@ compile_project() {
 }
 
 run_project() {
-    echo "Running..."
+    echo "Running with Multi-Core (auto threads)..."
     if [ -e "$CompiledFile" ]; then
-        ./"$CompiledFile"
+        JULIA_NUM_THREADS=auto ./"$CompiledFile"
     else
         echo "$CompiledFile does not exist!"
     fi

@@ -13,10 +13,10 @@
 bool prepararModelosIA();
 
 // Envia a população inteira para a Julia e preenche o vetor de ações retornado
-void obterDecisoesDaPopulacao(double *vetorEstados, int numJogadores, int *vetorAcoes);
+void obterDecisoesDaPopulacao(double *vetorEstados, int tamanhoArray, int numJogadores, int *vetorAcoes);
 
 // Avisa a Julia que a geração acabou (todos morreram) e passa as pontuações
-void notificarFimDeGeracao(double *vetorPontuacoes, int numJogadores);
+void notificarFimDeGeracao();
 
 // --- FUNÇÃO DO C (A Julia vai chamar esta para reiniciar) ---
 AQUA_EXPORT void C_ReiniciarMundo(int quantidadeDeJogadores);
